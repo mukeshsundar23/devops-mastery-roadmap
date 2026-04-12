@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: mukesh2306/devops-roadmap-backend:latest
+        image: localhost:32000/devops-roadmap-backend:latest
         env:
         - name: DATABASE_URL
           value: postgresql://postgres:password@postgres-service.devops-roadmap.svc.cluster.local:5432/devops_roadmap

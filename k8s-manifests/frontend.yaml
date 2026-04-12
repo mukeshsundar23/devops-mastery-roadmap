@@ -15,13 +15,11 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: mukesh2306/devops-roadmap-frontend:latest
+        image: localhost:32000/devops-roadmap-frontend:latest
         imagePullPolicy: Always
-        command: ["/bin/sh", "-c"]
-        args:
-          - |
-            find /usr/share/nginx/html -type f -name "*.js" -exec sed -i 's|http://localhost:3001|https://devops-roadmap-api.mukeshdev.online|g' {} +
-            nginx -g 'daemon off;'
+        env:
+        - name: VITE_API_URL
+          value: "https://devops-roadmap-api.mukeshdev.online"
         ports:
         - containerPort: 80
 ---

@@ -33,7 +33,8 @@ const projects = [
   // ═══════════════════════════════════════════════════════════════════════════
 
   // Week 1: Linux Deep Dive
-  { day: 1, week: 1, phase: 1, skill: "Linux", difficulty: "Beginner",
+  {
+    day: 1, week: 1, phase: 1, skill: "Linux", difficulty: "Beginner",
     title: "System Recon Script",
     tagline: "Build a sysadmin's first-responder toolkit",
     description: "Write a Bash script that collects system info: CPU, RAM, disk, top processes, open ports, logged-in users, and uptime. Output a formatted report to a file.",
@@ -42,7 +43,8 @@ const projects = [
     tools: ["bash", "cron", "ss", "awk", "sed"],
     outcome: "Cron-scheduled report generator",
   },
-  { day: 2, week: 1, phase: 1, skill: "Linux", difficulty: "Beginner",
+  {
+    day: 2, week: 1, phase: 1, skill: "Linux", difficulty: "Beginner",
     title: "User & Permission Auditor",
     tagline: "Simulate a security audit on a Linux system",
     description: "Script that audits all users, their groups, sudo access, home directory permissions, and SSH key presence. Flags anomalies.",
@@ -51,7 +53,8 @@ const projects = [
     tools: ["bash", "awk", "cut", "grep", "find"],
     outcome: "CSV security audit report",
   },
-  { day: 3, week: 1, phase: 1, skill: "Linux", difficulty: "Intermediate",
+  {
+    day: 3, week: 1, phase: 1, skill: "Linux", difficulty: "Intermediate",
     title: "Process & Service Manager",
     tagline: "Understand systemd inside out",
     description: "Create a custom systemd service for a Python health-check daemon. Configure restart policies, logging, resource limits, and timer-based triggering.",
@@ -60,7 +63,8 @@ const projects = [
     tools: ["systemd", "systemctl", "journalctl", "python"],
     outcome: "Production systemd service + timer",
   },
-  { day: 4, week: 1, phase: 1, skill: "Linux", difficulty: "Intermediate",
+  {
+    day: 4, week: 1, phase: 1, skill: "Linux", difficulty: "Intermediate",
     title: "Filesystem & Storage Deep Dive",
     tagline: "LVM, mounts, quotas — the real stuff",
     description: "Hands-on lab with disk partitioning, LVM volume creation, filesystem mounts, fstab configuration, and disk quota management on a VM.",
@@ -69,7 +73,8 @@ const projects = [
     tools: ["fdisk", "lvm", "mount", "fstab", "quota"],
     outcome: "LVM-managed storage with quotas",
   },
-  { day: 5, week: 1, phase: 1, skill: "Linux", difficulty: "Intermediate",
+  {
+    day: 5, week: 1, phase: 1, skill: "Linux", difficulty: "Intermediate",
     title: "Hardening Checklist Automation",
     tagline: "Automate CIS benchmark checks",
     description: "Script that checks a server against a CIS-like hardening checklist: SSH config, firewall status, password policies, kernel params, unnecessary services.",
@@ -80,7 +85,8 @@ const projects = [
   },
 
   // Week 2: Networking Fundamentals
-  { day: 6, week: 2, phase: 1, skill: "Networking", difficulty: "Beginner",
+  {
+    day: 6, week: 2, phase: 1, skill: "Networking", difficulty: "Beginner",
     title: "Network Fundamentals Lab",
     tagline: "OSI, TCP/IP, DNS — the language of DevOps",
     description: "Hands-on exploration of networking: trace packets with tcpdump, resolve DNS with dig/nslookup, analyze TCP handshakes, and understand subnetting via exercises.",
@@ -89,7 +95,8 @@ const projects = [
     tools: ["tcpdump", "dig", "nslookup", "ip", "arp"],
     outcome: "Networking cheat sheet + packet captures",
   },
-  { day: 7, week: 2, phase: 1, skill: "Networking", difficulty: "Beginner",
+  {
+    day: 7, week: 2, phase: 1, skill: "Networking", difficulty: "Beginner",
     title: "Network Discovery Tool",
     tagline: "Map your local network like a pro",
     description: "Python script that scans a CIDR range, discovers live hosts, does reverse DNS lookup, checks common ports, and outputs a network map.",
@@ -98,7 +105,8 @@ const projects = [
     tools: ["python", "socket", "ipaddress", "subprocess"],
     outcome: "Network map Markdown report",
   },
-  { day: 8, week: 2, phase: 1, skill: "Networking", difficulty: "Intermediate",
+  {
+    day: 8, week: 2, phase: 1, skill: "Networking", difficulty: "Intermediate",
     title: "Firewall & iptables Mastery",
     tagline: "Control every packet entering your server",
     description: "Configure iptables rules from scratch: allow SSH, HTTP/S, deny everything else. Implement port forwarding, rate limiting, and logging. Compare with UFW and nftables.",
@@ -107,7 +115,8 @@ const projects = [
     tools: ["iptables", "ufw", "nftables", "ss", "tcpdump"],
     outcome: "Hardened firewall configuration",
   },
-  { day: 9, week: 2, phase: 1, skill: "Networking", difficulty: "Intermediate",
+  {
+    day: 9, week: 2, phase: 1, skill: "Networking", difficulty: "Intermediate",
     title: "Reverse Proxy & Load Balancer",
     tagline: "Route traffic like a production engineer",
     description: "Configure Nginx as a reverse proxy and load balancer. Set up upstream backends, health checks, SSL termination, and sticky sessions.",
@@ -116,7 +125,8 @@ const projects = [
     tools: ["nginx", "openssl", "curl", "systemd"],
     outcome: "Load-balanced reverse proxy setup",
   },
-  { day: 10, week: 2, phase: 1, skill: "Networking", difficulty: "Intermediate",
+  {
+    day: 10, week: 2, phase: 1, skill: "Networking", difficulty: "Intermediate",
     title: "SSH Tunnels & VPN Basics",
     tagline: "Secure remote access patterns",
     description: "Master SSH tunneling: local/remote/dynamic port forwarding. Set up a WireGuard VPN between two VMs. Understand bastion/jump host patterns.",
@@ -127,7 +137,8 @@ const projects = [
   },
 
   // Week 3: Bash, Git & Python for DevOps
-  { day: 11, week: 3, phase: 1, skill: "Bash", difficulty: "Beginner",
+  {
+    day: 11, week: 3, phase: 1, skill: "Bash", difficulty: "Beginner",
     title: "Log Parser & Alerter",
     tagline: "Turn noisy logs into actionable alerts",
     description: "Parse Nginx/Apache access logs. Count 4xx/5xx errors, find top IPs, flag repeated failures, and send a summary to Slack via webhook.",
@@ -136,7 +147,8 @@ const projects = [
     tools: ["bash", "awk", "sort", "uniq", "curl"],
     outcome: "Slack-notified log alert system",
   },
-  { day: 12, week: 3, phase: 1, skill: "Bash", difficulty: "Intermediate",
+  {
+    day: 12, week: 3, phase: 1, skill: "Bash", difficulty: "Intermediate",
     title: "Automated Backup System",
     tagline: "Production-grade backup with retention policies",
     description: "Backup script for directories/databases. Compress with tar+gzip, encrypt with GPG, upload to S3 or rsync to remote, and enforce 7-day retention.",
@@ -145,7 +157,8 @@ const projects = [
     tools: ["bash", "tar", "gpg", "aws-cli", "rsync", "cron"],
     outcome: "Encrypted, auto-retained backup pipeline",
   },
-  { day: 13, week: 3, phase: 1, skill: "Git", difficulty: "Beginner",
+  {
+    day: 13, week: 3, phase: 1, skill: "Git", difficulty: "Beginner",
     title: "Git Workflow Mastery",
     tagline: "Branching, rebasing, conflict resolution",
     description: "Master Git workflows: feature branching, interactive rebase, cherry-pick, stash, bisect for bug hunting. Simulate team collaboration with merge conflicts.",
@@ -154,7 +167,8 @@ const projects = [
     tools: ["git", "git-hooks", "gitflow"],
     outcome: "Git workflow cheat sheet + hooks",
   },
-  { day: 14, week: 3, phase: 1, skill: "Git", difficulty: "Intermediate",
+  {
+    day: 14, week: 3, phase: 1, skill: "Git", difficulty: "Intermediate",
     title: "GitLab/GitHub Administration",
     tagline: "Branch protection, code review, and webhooks",
     description: "Configure repo-level settings: branch protection rules, required reviews, status checks, webhooks for notifications, and CODEOWNERS for auto-assignment.",
@@ -163,7 +177,8 @@ const projects = [
     tools: ["gitlab", "github", "webhooks", "git"],
     outcome: "Governed repository with review gates",
   },
-  { day: 15, week: 3, phase: 1, skill: "Python", difficulty: "Beginner",
+  {
+    day: 15, week: 3, phase: 1, skill: "Python", difficulty: "Beginner",
     title: "Python DevOps Toolkit",
     tagline: "Automate everything with Python",
     description: "Build a CLI toolkit: server health check, JSON/YAML config parser, API caller for cloud resources, and file watcher for auto-deployment triggers.",
@@ -172,7 +187,8 @@ const projects = [
     tools: ["python", "psutil", "pyyaml", "requests", "click"],
     outcome: "Multi-function DevOps CLI tool",
   },
-  { day: 16, week: 3, phase: 1, skill: "Python", difficulty: "Intermediate",
+  {
+    day: 16, week: 3, phase: 1, skill: "Python", difficulty: "Intermediate",
     title: "Infrastructure API Client",
     tagline: "Talk to cloud APIs programmatically",
     description: "Python script using Azure SDK and Boto3 (AWS) to list VMs, check their status, start/stop them, and generate an infrastructure inventory report.",
@@ -186,7 +202,8 @@ const projects = [
   // PHASE 2 — CONTAINERIZATION (Weeks 4–5)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  { day: 17, week: 4, phase: 2, skill: "Docker", difficulty: "Beginner",
+  {
+    day: 17, week: 4, phase: 2, skill: "Docker", difficulty: "Beginner",
     title: "Docker Fundamentals Sprint",
     tagline: "Images, containers, volumes, networks",
     description: "Hands-on with Docker basics: pull images, run containers, expose ports, mount volumes, inspect logs, exec into containers, and understand image layers.",
@@ -195,7 +212,8 @@ const projects = [
     tools: ["docker", "docker-cli"],
     outcome: "Docker fundamentals lab notes",
   },
-  { day: 18, week: 4, phase: 2, skill: "Docker", difficulty: "Beginner",
+  {
+    day: 18, week: 4, phase: 2, skill: "Docker", difficulty: "Beginner",
     title: "Multi-Stage Docker Build",
     tagline: "Ship lean, production-optimized images",
     description: "Take a Python FastAPI app. Build a multi-stage Dockerfile: build stage installs deps, production stage copies only the app. Compare image sizes.",
@@ -204,7 +222,8 @@ const projects = [
     tools: ["docker", "dockerfile", "fastapi", "alpine"],
     outcome: "Lean production Docker image",
   },
-  { day: 19, week: 4, phase: 2, skill: "Docker", difficulty: "Intermediate",
+  {
+    day: 19, week: 4, phase: 2, skill: "Docker", difficulty: "Intermediate",
     title: "Docker Compose Full Stack",
     tagline: "Spin up a complete app stack locally",
     description: "Docker Compose file for React frontend, FastAPI backend, PostgreSQL DB, and Redis cache. With volumes, networks, health checks, and env vars.",
@@ -213,7 +232,8 @@ const projects = [
     tools: ["docker-compose", "postgres", "redis", "fastapi"],
     outcome: "One-command full stack local env",
   },
-  { day: 20, week: 4, phase: 2, skill: "Docker", difficulty: "Intermediate",
+  {
+    day: 20, week: 4, phase: 2, skill: "Docker", difficulty: "Intermediate",
     title: "Private Registry & Image Scanning",
     tagline: "Run your own registry, scan for CVEs",
     description: "Deploy a private Docker registry with TLS and basic auth. Push/pull images. Scan with Trivy for vulnerabilities.",
@@ -222,7 +242,8 @@ const projects = [
     tools: ["docker", "registry:2", "openssl", "trivy"],
     outcome: "Secure private registry + scan report",
   },
-  { day: 21, week: 4, phase: 2, skill: "Networking", difficulty: "Intermediate",
+  {
+    day: 21, week: 4, phase: 2, skill: "Networking", difficulty: "Intermediate",
     title: "Docker Network Deep Dive",
     tagline: "Master bridge, host, overlay, and macvlan",
     description: "Explore all Docker network modes. Set up containers in each mode, test connectivity, inspect with tcpdump, understand DNS resolution.",
@@ -233,7 +254,8 @@ const projects = [
   },
 
   // Week 5: Advanced Docker
-  { day: 22, week: 5, phase: 2, skill: "Python", difficulty: "Intermediate",
+  {
+    day: 22, week: 5, phase: 2, skill: "Python", difficulty: "Intermediate",
     title: "Docker API Controller",
     tagline: "Manage containers programmatically",
     description: "Python script using the Docker SDK to: list containers, start/stop them, stream logs, inspect resource usage, and auto-restart unhealthy containers.",
@@ -242,7 +264,8 @@ const projects = [
     tools: ["python", "docker-sdk", "argparse"],
     outcome: "Container management CLI tool",
   },
-  { day: 23, week: 5, phase: 2, skill: "Docker", difficulty: "Intermediate",
+  {
+    day: 23, week: 5, phase: 2, skill: "Docker", difficulty: "Intermediate",
     title: "Container Resource Governance",
     tagline: "Enforce CPU/memory limits and monitor them",
     description: "Run containers with CPU and memory limits. Build a Python monitor that alerts when containers approach their limits.",
@@ -251,7 +274,8 @@ const projects = [
     tools: ["docker", "python", "docker-sdk"],
     outcome: "Resource metrics dashboard + alerts",
   },
-  { day: 24, week: 5, phase: 2, skill: "Docker", difficulty: "Advanced",
+  {
+    day: 24, week: 5, phase: 2, skill: "Docker", difficulty: "Advanced",
     title: "Dockerized CI Runner",
     tagline: "Self-hosted GitLab runner in Docker",
     description: "Deploy a self-hosted CI runner inside Docker. Configure Docker-in-Docker (DinD). Run a sample build and push pipeline.",
@@ -265,7 +289,8 @@ const projects = [
   // PHASE 3 — ORCHESTRATION (Weeks 6–8)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  { day: 25, week: 6, phase: 3, skill: "Kubernetes", difficulty: "Beginner",
+  {
+    day: 25, week: 6, phase: 3, skill: "Kubernetes", difficulty: "Beginner",
     title: "K8s Fundamentals on k3s",
     tagline: "Pods, Deployments, Services — the basics",
     description: "Deploy a FastAPI app to k3s. Write Deployment, Service, and Ingress manifests. Scale manually and observe pod scheduling with k9s.",
@@ -274,7 +299,8 @@ const projects = [
     tools: ["kubernetes", "k3s", "kubectl", "k9s", "nginx-ingress"],
     outcome: "Live service accessible via Ingress",
   },
-  { day: 26, week: 6, phase: 3, skill: "Kubernetes", difficulty: "Beginner",
+  {
+    day: 26, week: 6, phase: 3, skill: "Kubernetes", difficulty: "Beginner",
     title: "ConfigMaps & Secrets",
     tagline: "Separate config from code",
     description: "Use ConfigMaps for app config and Secrets for DB passwords. Mount as env vars and files. Rotate a secret without downtime.",
@@ -283,7 +309,8 @@ const projects = [
     tools: ["kubernetes", "kubectl", "base64", "k9s"],
     outcome: "Config-externalized deployment",
   },
-  { day: 27, week: 7, phase: 3, skill: "Kubernetes", difficulty: "Intermediate",
+  {
+    day: 27, week: 7, phase: 3, skill: "Kubernetes", difficulty: "Intermediate",
     title: "HPA — Horizontal Pod Autoscaler",
     tagline: "Auto-scale under load like production",
     description: "Configure HPA based on CPU. Use a load generator to stress the service. Watch pods scale up and down automatically.",
@@ -292,7 +319,8 @@ const projects = [
     tools: ["kubernetes", "hpa", "metrics-server", "k6", "k9s"],
     outcome: "Auto-scaling service under load test",
   },
-  { day: 28, week: 7, phase: 3, skill: "Kubernetes", difficulty: "Intermediate",
+  {
+    day: 28, week: 7, phase: 3, skill: "Kubernetes", difficulty: "Intermediate",
     title: "Persistent Storage with PVCs",
     tagline: "Stateful apps need durable storage",
     description: "Deploy PostgreSQL on Kubernetes with a PersistentVolumeClaim. Simulate pod restart and verify data persists. Backup via CronJob.",
@@ -301,7 +329,8 @@ const projects = [
     tools: ["kubernetes", "pvc", "postgresql", "cronjob"],
     outcome: "Persistent DB with automated backups",
   },
-  { day: 29, week: 7, phase: 3, skill: "Kubernetes", difficulty: "Intermediate",
+  {
+    day: 29, week: 7, phase: 3, skill: "Kubernetes", difficulty: "Intermediate",
     title: "RBAC — Role-Based Access Control",
     tagline: "Least-privilege access in Kubernetes",
     description: "Create service accounts for different teams. Write Roles, bind them, and test access boundaries.",
@@ -310,7 +339,8 @@ const projects = [
     tools: ["kubernetes", "rbac", "serviceaccount", "kubectl"],
     outcome: "RBAC policy set with 3 access tiers",
   },
-  { day: 30, week: 8, phase: 3, skill: "Kubernetes", difficulty: "Advanced",
+  {
+    day: 30, week: 8, phase: 3, skill: "Kubernetes", difficulty: "Advanced",
     title: "Helm Chart — Package Your App",
     tagline: "Templatize and version your deployments",
     description: "Convert manifests into a Helm chart. Parameterize image tag, replicas, ingress host. Deploy with helm install.",
@@ -319,7 +349,8 @@ const projects = [
     tools: ["helm", "kubernetes", "yaml", "kubectl"],
     outcome: "Installable Helm chart package",
   },
-  { day: 31, week: 8, phase: 3, skill: "Kubernetes", difficulty: "Advanced",
+  {
+    day: 31, week: 8, phase: 3, skill: "Kubernetes", difficulty: "Advanced",
     title: "KEDA — Event-Driven Autoscaling",
     tagline: "Scale on queues, cron, and custom metrics",
     description: "Install KEDA on k3s. Configure ScaledObject for a queue processor that scales based on queue length. Set up ScaledJob for batch work.",
@@ -328,7 +359,8 @@ const projects = [
     tools: ["keda", "kubernetes", "redis", "helm", "k9s"],
     outcome: "Event-driven auto-scaling system",
   },
-  { day: 32, week: 8, phase: 3, skill: "Kubernetes", difficulty: "Advanced",
+  {
+    day: 32, week: 8, phase: 3, skill: "Kubernetes", difficulty: "Advanced",
     title: "ArgoCD GitOps Deployment",
     tagline: "Let Git be your single source of truth",
     description: "Install ArgoCD on k3s. Connect your Helm chart repo. Configure auto-sync on git push. Simulate drift and watch auto-heal.",
@@ -342,7 +374,8 @@ const projects = [
   // PHASE 4 — INFRASTRUCTURE AS CODE (Weeks 9–11)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  { day: 33, week: 9, phase: 4, skill: "Terraform", difficulty: "Beginner",
+  {
+    day: 33, week: 9, phase: 4, skill: "Terraform", difficulty: "Beginner",
     title: "Provision a VM on Azure",
     tagline: "Infrastructure as Code from scratch",
     description: "Write Terraform to provision a Linux VM on Azure. Include VNet, subnet, NSG, public IP, and SSH key injection.",
@@ -351,7 +384,8 @@ const projects = [
     tools: ["terraform", "azure", "hcl", "ssh"],
     outcome: "SSH-accessible VM via Terraform",
   },
-  { day: 34, week: 9, phase: 4, skill: "Terraform", difficulty: "Beginner",
+  {
+    day: 34, week: 9, phase: 4, skill: "Terraform", difficulty: "Beginner",
     title: "Remote State & Locking",
     tagline: "Collaborate safely on Terraform state",
     description: "Move Terraform state from local to Azure Blob Storage. Enable state locking. Simulate team collaboration.",
@@ -360,7 +394,8 @@ const projects = [
     tools: ["terraform", "azure-storage", "backend"],
     outcome: "Remote-state Terraform project",
   },
-  { day: 35, week: 9, phase: 4, skill: "Cloud", difficulty: "Beginner",
+  {
+    day: 35, week: 9, phase: 4, skill: "Cloud", difficulty: "Beginner",
     title: "Cloud Services Overview Lab",
     tagline: "Azure + AWS side by side",
     description: "Hands-on comparison: provision equivalent resources on Azure and AWS. Map services (Azure VM ↔ EC2, Blob ↔ S3, AKS ↔ EKS). Understand pricing models.",
@@ -369,7 +404,8 @@ const projects = [
     tools: ["azure-cli", "aws-cli", "terraform"],
     outcome: "Multi-cloud comparison cheat sheet",
   },
-  { day: 36, week: 10, phase: 4, skill: "Terraform", difficulty: "Intermediate",
+  {
+    day: 36, week: 10, phase: 4, skill: "Terraform", difficulty: "Intermediate",
     title: "Terraform Modules — Reusable Infra",
     tagline: "DRY infrastructure with modules",
     description: "Create a reusable Terraform module for networking. Call it from root with different env configs.",
@@ -378,7 +414,8 @@ const projects = [
     tools: ["terraform", "modules", "hcl", "azure"],
     outcome: "Reusable network module library",
   },
-  { day: 37, week: 10, phase: 4, skill: "Terraform", difficulty: "Intermediate",
+  {
+    day: 37, week: 10, phase: 4, skill: "Terraform", difficulty: "Intermediate",
     title: "Provision AKS / GKE Cluster",
     tagline: "Managed Kubernetes via Terraform",
     description: "Use Terraform to provision an AKS or GKE cluster with node pools, autoscaling, RBAC, and monitoring enabled.",
@@ -387,7 +424,8 @@ const projects = [
     tools: ["terraform", "aks", "kubectl", "azure"],
     outcome: "Managed Kubernetes cluster on cloud",
   },
-  { day: 38, week: 10, phase: 4, skill: "Terraform", difficulty: "Advanced",
+  {
+    day: 38, week: 10, phase: 4, skill: "Terraform", difficulty: "Advanced",
     title: "Terraform Workspaces — Multi-Env",
     tagline: "Dev/staging/prod from one codebase",
     description: "Use Terraform workspaces for multiple environments. Different VM sizes and replica counts per workspace.",
@@ -398,7 +436,8 @@ const projects = [
   },
 
   // Week 11: Ansible
-  { day: 39, week: 11, phase: 4, skill: "Ansible", difficulty: "Beginner",
+  {
+    day: 39, week: 11, phase: 4, skill: "Ansible", difficulty: "Beginner",
     title: "Server Provisioning Playbook",
     tagline: "Automate new server setup end-to-end",
     description: "Ansible playbook to configure a fresh Ubuntu server: install packages, create users, configure SSH, set up firewall, install Docker.",
@@ -407,7 +446,8 @@ const projects = [
     tools: ["ansible", "ansible-vault", "ubuntu", "yaml"],
     outcome: "Fully-configured server in one command",
   },
-  { day: 40, week: 11, phase: 4, skill: "Ansible", difficulty: "Intermediate",
+  {
+    day: 40, week: 11, phase: 4, skill: "Ansible", difficulty: "Intermediate",
     title: "Ansible Roles — Nginx + TLS",
     tagline: "Production web server with Let's Encrypt",
     description: "Create an Ansible role to install Nginx, configure virtual hosts, and provision TLS certificates via Certbot.",
@@ -416,7 +456,8 @@ const projects = [
     tools: ["ansible", "nginx", "certbot", "jinja2"],
     outcome: "HTTPS-enabled web server role",
   },
-  { day: 41, week: 11, phase: 4, skill: "Ansible", difficulty: "Intermediate",
+  {
+    day: 41, week: 11, phase: 4, skill: "Ansible", difficulty: "Intermediate",
     title: "Ansible + Terraform Integration",
     tagline: "Provision infra then configure it",
     description: "Terraform provisions VMs, outputs IPs to build Ansible dynamic inventory. Ansible configures freshly provisioned servers.",
@@ -425,7 +466,8 @@ const projects = [
     tools: ["terraform", "ansible", "python", "makefile"],
     outcome: "Full provision-and-configure pipeline",
   },
-  { day: 42, week: 11, phase: 4, skill: "Ansible", difficulty: "Advanced",
+  {
+    day: 42, week: 11, phase: 4, skill: "Ansible", difficulty: "Advanced",
     title: "Ansible for K8s Node Setup",
     tagline: "Automate k8s node joining",
     description: "Ansible playbooks to install kubeadm, kubelet, kubectl on nodes, initialize control plane, and join workers automatically.",
@@ -439,7 +481,8 @@ const projects = [
   // PHASE 5 — CI/CD & GITOPS (Weeks 12–14)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  { day: 43, week: 12, phase: 5, skill: "CI/CD", difficulty: "Beginner",
+  {
+    day: 43, week: 12, phase: 5, skill: "CI/CD", difficulty: "Beginner",
     title: "GitLab CI — Lint, Test, Build",
     tagline: "Your first complete CI pipeline",
     description: "Write a .gitlab-ci.yml with stages: lint → test → build. Lint Python, test with pytest, build Docker image. Run on self-hosted runner.",
@@ -448,7 +491,8 @@ const projects = [
     tools: ["gitlab-ci", "python", "flake8", "pytest", "docker"],
     outcome: "3-stage pipeline on GitLab",
   },
-  { day: 44, week: 12, phase: 5, skill: "CI/CD", difficulty: "Intermediate",
+  {
+    day: 44, week: 12, phase: 5, skill: "CI/CD", difficulty: "Intermediate",
     title: "CI/CD — Push to Registry & Deploy",
     tagline: "Full pipeline: code to running container",
     description: "Extend the pipeline: push image to registry, SSH deploy to server, add manual approval gate before prod.",
@@ -457,7 +501,8 @@ const projects = [
     tools: ["gitlab-ci", "docker-hub", "ssh", "gitlab-environments"],
     outcome: "Code-to-deploy automated pipeline",
   },
-  { day: 45, week: 12, phase: 5, skill: "CI/CD", difficulty: "Intermediate",
+  {
+    day: 45, week: 12, phase: 5, skill: "CI/CD", difficulty: "Intermediate",
     title: "Pipeline for Kubernetes Deploy",
     tagline: "CI/CD that deploys to k3s",
     description: "CI pipeline that builds image, pushes to registry, then uses helm upgrade to deploy to k3s. kubeconfig as CI secret.",
@@ -466,7 +511,8 @@ const projects = [
     tools: ["gitlab-ci", "helm", "kubectl", "kubernetes"],
     outcome: "Pipeline deploying to k3s",
   },
-  { day: 46, week: 13, phase: 5, skill: "CI/CD", difficulty: "Intermediate",
+  {
+    day: 46, week: 13, phase: 5, skill: "CI/CD", difficulty: "Intermediate",
     title: "Semantic Versioning & Release Automation",
     tagline: "Automate your release process",
     description: "Use conventional commits + semantic-release. Auto-generate CHANGELOG, tag the repo, and create releases.",
@@ -475,7 +521,8 @@ const projects = [
     tools: ["semantic-release", "commitlint", "gitlab-api", "bash"],
     outcome: "Automated versioned release pipeline",
   },
-  { day: 47, week: 13, phase: 5, skill: "CI/CD", difficulty: "Advanced",
+  {
+    day: 47, week: 13, phase: 5, skill: "CI/CD", difficulty: "Advanced",
     title: "Pipeline Security: SAST & Image Scan",
     tagline: "Shift security left into CI",
     description: "Add security gates: SAST with Bandit, SCA with Safety, image scan with Trivy. Fail pipeline on CRITICAL CVEs.",
@@ -484,7 +531,8 @@ const projects = [
     tools: ["bandit", "safety", "trivy", "gitlab-ci"],
     outcome: "Security-gated CI pipeline",
   },
-  { day: 48, week: 13, phase: 5, skill: "CI/CD", difficulty: "Advanced",
+  {
+    day: 48, week: 13, phase: 5, skill: "CI/CD", difficulty: "Advanced",
     title: "Matrix Build & Self-Healing Pipelines",
     tagline: "Multi-version testing + resilient CI",
     description: "Configure matrix builds across Python versions. Add retry logic, timeouts, auto-cancellation, and comprehensive alerting.",
@@ -493,7 +541,8 @@ const projects = [
     tools: ["gitlab-ci", "python", "pytest", "slack-webhook"],
     outcome: "Resilient multi-version CI matrix",
   },
-  { day: 49, week: 14, phase: 5, skill: "Terraform", difficulty: "Intermediate",
+  {
+    day: 49, week: 14, phase: 5, skill: "Terraform", difficulty: "Intermediate",
     title: "Terraform + GitLab CI Pipeline",
     tagline: "Automate infra changes through CI",
     description: "Run terraform plan in CI on MR, post plan as MR comment. Auto-apply on merge to main. Drift detection via scheduled pipeline.",
@@ -502,7 +551,8 @@ const projects = [
     tools: ["terraform", "gitlab-ci", "gitlab-api", "azure"],
     outcome: "IaC pipeline with MR plan comments",
   },
-  { day: 50, week: 14, phase: 5, skill: "Terraform", difficulty: "Advanced",
+  {
+    day: 50, week: 14, phase: 5, skill: "Terraform", difficulty: "Advanced",
     title: "Terratest — Test Your Infrastructure",
     tagline: "Automated testing for Terraform modules",
     description: "Write Go-based Terratest tests for your Terraform modules. Provision real infra, validate, then destroy.",
@@ -516,7 +566,8 @@ const projects = [
   // PHASE 6 — OBSERVABILITY & RELIABILITY (Weeks 15–16)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  { day: 51, week: 15, phase: 6, skill: "Monitoring", difficulty: "Intermediate",
+  {
+    day: 51, week: 15, phase: 6, skill: "Monitoring", difficulty: "Intermediate",
     title: "Prometheus + Grafana Stack",
     tagline: "Full observability from scratch",
     description: "Deploy Prometheus and Grafana via Docker Compose. Scrape node_exporter, cAdvisor, and FastAPI custom metrics. Build golden-signal dashboards.",
@@ -525,7 +576,8 @@ const projects = [
     tools: ["prometheus", "grafana", "cadvisor", "node_exporter"],
     outcome: "Live metrics dashboard + alerting",
   },
-  { day: 52, week: 15, phase: 6, skill: "Monitoring", difficulty: "Intermediate",
+  {
+    day: 52, week: 15, phase: 6, skill: "Monitoring", difficulty: "Intermediate",
     title: "ELK Stack — Centralized Logging",
     tagline: "Aggregate and search all your logs",
     description: "Deploy Elasticsearch, Logstash, Kibana. Ship logs from Nginx and FastAPI via Filebeat. Create Kibana dashboards.",
@@ -534,7 +586,8 @@ const projects = [
     tools: ["elasticsearch", "logstash", "kibana", "filebeat"],
     outcome: "Searchable centralized log dashboard",
   },
-  { day: 53, week: 16, phase: 6, skill: "Monitoring", difficulty: "Advanced",
+  {
+    day: 53, week: 16, phase: 6, skill: "Monitoring", difficulty: "Advanced",
     title: "Alertmanager & Incident Routing",
     tagline: "Production-grade alert routing and silencing",
     description: "Configure Alertmanager with routes, receivers (Slack, email), inhibition rules, and grouping. Simulate incidents.",
@@ -543,7 +596,8 @@ const projects = [
     tools: ["alertmanager", "prometheus", "slack", "amtool"],
     outcome: "Multi-channel alert routing system",
   },
-  { day: 54, week: 16, phase: 6, skill: "Python", difficulty: "Advanced",
+  {
+    day: 54, week: 16, phase: 6, skill: "Python", difficulty: "Advanced",
     title: "Incident Response Bot",
     tagline: "Auto-remediate common production incidents",
     description: "Python bot that watches Alertmanager webhooks, maps alerts to runbooks, and auto-remediates: restart pod, scale up, clear disk.",
@@ -557,7 +611,8 @@ const projects = [
   // PHASE 7 — SECURITY & GOVERNANCE (Weeks 17–18)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  { day: 55, week: 17, phase: 7, skill: "Security", difficulty: "Intermediate",
+  {
+    day: 55, week: 17, phase: 7, skill: "Security", difficulty: "Intermediate",
     title: "Secrets Management with Vault",
     tagline: "Never hardcode a secret again",
     description: "Deploy HashiCorp Vault. Store DB credentials. Python app fetches secrets at runtime. Integrate with Kubernetes auth.",
@@ -566,7 +621,8 @@ const projects = [
     tools: ["vault", "python", "hvac", "kubernetes"],
     outcome: "Runtime secret injection in K8s",
   },
-  { day: 56, week: 17, phase: 7, skill: "Security", difficulty: "Intermediate",
+  {
+    day: 56, week: 17, phase: 7, skill: "Security", difficulty: "Intermediate",
     title: "Network Policy — Zero Trust K8s",
     tagline: "Micro-segmentation inside your cluster",
     description: "Implement NetworkPolicies: default deny all, then allow only required paths (frontend → backend → DB). Test isolation.",
@@ -575,7 +631,8 @@ const projects = [
     tools: ["kubernetes", "networkpolicy", "calico", "kubectl"],
     outcome: "Zero-trust networked application",
   },
-  { day: 57, week: 18, phase: 7, skill: "Security", difficulty: "Advanced",
+  {
+    day: 57, week: 18, phase: 7, skill: "Security", difficulty: "Advanced",
     title: "OPA Gatekeeper — Policy as Code",
     tagline: "Enforce governance across your cluster",
     description: "Install OPA Gatekeeper. Write policies: resource limits required, no latest tag, required labels, no privileged containers.",
@@ -589,7 +646,8 @@ const projects = [
   // PHASE 8 — CAPSTONE & INTERVIEW PREP (Weeks 19–20)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  { day: 58, week: 19, phase: 8, skill: "CI/CD", difficulty: "Advanced",
+  {
+    day: 58, week: 19, phase: 8, skill: "CI/CD", difficulty: "Advanced",
     title: "Full GitOps Platform",
     tagline: "Tie everything together: the capstone",
     description: "End-to-end: code push → CI tests → Docker build → push → ArgoCD auto-deploys → Prometheus alerts → Slack. Everything automated.",
@@ -598,7 +656,8 @@ const projects = [
     tools: ["gitlab-ci", "argocd", "helm", "prometheus", "k3s"],
     outcome: "Production-grade GitOps platform",
   },
-  { day: 59, week: 19, phase: 8, skill: "Terraform", difficulty: "Advanced",
+  {
+    day: 59, week: 19, phase: 8, skill: "Terraform", difficulty: "Advanced",
     title: "Multi-Cloud Networking Lab",
     tagline: "Connect Azure and GCP with VPN tunnel",
     description: "Terraform provisions VPCs in Azure and GCP. Create site-to-site VPN tunnel. Route traffic privately across clouds.",
@@ -607,7 +666,8 @@ const projects = [
     tools: ["terraform", "azure", "gcp", "vpn", "bgp"],
     outcome: "Working multi-cloud VPN tunnel",
   },
-  { day: 60, week: 20, phase: 8, skill: "Cloud", difficulty: "Advanced",
+  {
+    day: 60, week: 20, phase: 8, skill: "Cloud", difficulty: "Advanced",
     title: "Interview-Ready Portfolio & Prep",
     tagline: "Package everything for your job switch",
     description: "Create a portfolio GitHub/GitLab showcasing your best 5 projects. Write a killer README for each. Practice common DevOps interview questions and system design scenarios.",
@@ -627,8 +687,8 @@ const diffBadge = {
 };
 
 // ─── STORAGE ────────────────────────────────────────────────────────────────
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Runtime config: injected via config.js generated at container startup
+const API_URL = (typeof window !== "undefined" && window.__API_URL__) || 'http://localhost:3001';
 
 async function loadProgress() {
   try {
@@ -704,8 +764,8 @@ function Card({ p, completed, onToggle, onClick }) {
       borderRadius: 12, padding: 16, cursor: "pointer",
       transition: "all 0.2s ease", position: "relative", overflow: "hidden",
     }}
-    onMouseEnter={e => { e.currentTarget.style.borderColor = sc + "60"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-    onMouseLeave={e => { e.currentTarget.style.borderColor = completed ? "rgba(74,222,128,0.18)" : "#1a1a2e"; e.currentTarget.style.transform = "none"; }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = sc + "60"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = completed ? "rgba(74,222,128,0.18)" : "#1a1a2e"; e.currentTarget.style.transform = "none"; }}
     >
       {completed && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, #4ade80, ${sc})` }} />}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
