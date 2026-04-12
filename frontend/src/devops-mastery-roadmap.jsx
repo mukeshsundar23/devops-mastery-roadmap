@@ -720,10 +720,8 @@ function PhaseHeader({ phase, projects: phaseProjects, completedDays }) {
   const done = phaseProjects.filter(p => completedDays.has(p.day)).length;
   const pct = phaseProjects.length > 0 ? Math.round((done / phaseProjects.length) * 100) : 0;
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 16, padding: "20px 0 12px",
+    <div className="phase-header" style={{
       borderBottom: `1px solid ${phase.color}22`,
-      marginBottom: 16,
     }}>
       <div style={{
         width: 44, height: 44, borderRadius: 10,
@@ -741,9 +739,9 @@ function PhaseHeader({ phase, projects: phaseProjects, completedDays }) {
         </div>
         <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{phase.subtitle}</div>
       </div>
-      <div style={{ textAlign: "right" }}>
+      <div className="phase-progress">
         <div style={{ fontSize: 11, color: "#64748b" }}>{done}/{phaseProjects.length}</div>
-        <div style={{ width: 80, height: 3, background: "#1e293b", borderRadius: 2, marginTop: 4 }}>
+        <div className="phase-progress-bar">
           <div style={{
             height: "100%", borderRadius: 2, background: phase.color,
             width: `${pct}%`, transition: "width 0.4s ease",
@@ -812,9 +810,8 @@ function Modal({ project: p, completed, onToggle, onClose }) {
       display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
       animation: "fadeIn 0.15s ease",
     }}>
-      <div onClick={e => e.stopPropagation()} style={{
+      <div className="modal-container" onClick={e => e.stopPropagation()} style={{
         background: "#0a0a12", border: "1px solid #1a1a2e", borderRadius: 16,
-        padding: 28, maxWidth: 620, width: "100%", maxHeight: "90vh",
         overflowY: "auto", position: "relative",
       }}>
         <button onClick={onClose} style={{
@@ -938,20 +935,49 @@ export default function DevOpsRoadmapV2() {
         ::-webkit-scrollbar-thumb { background: #1a1a2e; border-radius: 2px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header-wrapper { background: linear-gradient(160deg, #06060c 0%, #0d0d1a 40%, #0a0a14 100%); border-bottom: 1px solid #1a1a2e; padding: 36px 24px 28px; }
+        .header-content { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+        .page-title { font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800; color: #f1f5f9; line-height: 1.15; margin-bottom: 8px; }
+        .header-progress { text-align: right; min-width: 140px; }
+        .progress-bar-container { width: 140px; height: 4px; background: #12121e; border-radius: 3px; margin-top: 10px; margin-left: auto; }
+        .filter-bar { background: #08080f; border-bottom: 1px solid #1a1a2e; padding: 14px 24px; position: sticky; top: 0; z-index: 50; }
+        .filter-content { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .search-container { margin-left: auto; }
+        .search-input { background: #0c0c14; border: 1px solid #1a1a2e; border-radius: 8px; padding: 6px 14px; font-size: 11px; color: #8888a0; outline: none; font-family: 'JetBrains Mono', monospace; width: 180px; }
+        .main-content { padding: 8px 24px 60px; }
+        .phase-header { display: flex; align-items: center; gap: 16px; padding: 20px 0 12px; margin-bottom: 16px; }
+        .phase-progress { text-align: right; }
+        .phase-progress-bar { width: 80px; height: 3px; background: #1e293b; border-radius: 2px; margin-top: 4px; }
+        .modal-container { padding: 28px; max-width: 620px; width: 100%; max-height: 90vh; }
+        
+        @media (max-width: 768px) {
+          .header-wrapper { padding: 24px 16px 20px; }
+          .header-content { flex-direction: column; gap: 16px; }
+          .page-title { font-size: 26px !important; }
+          .header-progress { text-align: left; width: 100%; margin-top: 8px; }
+          .progress-bar-container { margin-left: 0; width: 100%; }
+          .filter-bar { padding: 12px 16px; }
+          .search-container { margin-left: 0; width: 100%; margin-top: 8px; }
+          .search-input { width: 100%; }
+          .main-content { padding: 8px 16px 60px; }
+          .phase-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+          .phase-progress { text-align: left; width: 100%; }
+          .phase-progress-bar { width: 100%; margin-top: 8px; }
+          .modal-container { padding: 20px !important; border-radius: 12px !important; }
+        }
       `}</style>
 
       {/* ── HEADER ───────────────────────────────────────────────── */}
-      <div style={{
-        background: "linear-gradient(160deg, #06060c 0%, #0d0d1a 40%, #0a0a14 100%)",
-        borderBottom: "1px solid #1a1a2e", padding: "36px 24px 28px",
-      }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 20 }}>
+      <div className="header-wrapper">
+        <div className="container">
+          <div className="header-content">
             <div>
               <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#22d3ee", fontWeight: 700, marginBottom: 10, fontFamily: "'JetBrains Mono', monospace" }}>
-                DEVOPS MASTERY ROADMAP v2
+                DEVOPS MASTERY ROADMAP
               </div>
-              <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 32, fontWeight: 800, color: "#f1f5f9", lineHeight: 1.15, marginBottom: 8 }}>
+              <h1 className="page-title">
                 60 Projects.<br />
                 <span style={{ color: "#818cf8" }}>20 Weeks.</span>{" "}
                 <span style={{ color: "#22d3ee" }}>8 Phases.</span>
@@ -960,11 +986,11 @@ export default function DevOpsRoadmapV2() {
                 From Linux fundamentals to production GitOps. Every project builds your resume. Progress saves automatically.
               </p>
             </div>
-            <div style={{ textAlign: "right", minWidth: 140 }}>
+            <div className="header-progress">
               <div style={{ fontSize: 10, color: "#4a4a68", letterSpacing: "0.15em", fontWeight: 600, marginBottom: 8 }}>OVERALL</div>
               <div style={{ fontSize: 42, fontWeight: 800, color: "#818cf8", lineHeight: 1, fontFamily: "'Outfit', sans-serif" }}>{progress}%</div>
               <div style={{ fontSize: 10, color: "#4a4a68", marginTop: 4 }}>{completedDays.size} / {projects.length} done</div>
-              <div style={{ width: 140, height: 4, background: "#12121e", borderRadius: 3, marginTop: 10, marginLeft: "auto" }}>
+              <div className="progress-bar-container">
                 <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg, #6366f1, #22d3ee)", borderRadius: 3, transition: "width 0.4s ease" }} />
               </div>
             </div>
@@ -992,8 +1018,8 @@ export default function DevOpsRoadmapV2() {
       </div>
 
       {/* ── FILTER BAR ───────────────────────────────────────────── */}
-      <div style={{ background: "#08080f", borderBottom: "1px solid #1a1a2e", padding: "14px 24px", position: "sticky", top: 0, zIndex: 50 }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+      <div className="filter-bar">
+        <div className="container filter-content">
           {skills.map(s => {
             const active = activeSkill === s;
             const c = skillColors[s] || "#818cf8";
@@ -1010,22 +1036,18 @@ export default function DevOpsRoadmapV2() {
               </button>
             );
           })}
-          <div style={{ marginLeft: "auto" }}>
+          <div className="search-container">
             <input
               type="text" placeholder="Search projects..."
               value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-              style={{
-                background: "#0c0c14", border: "1px solid #1a1a2e", borderRadius: 8,
-                padding: "6px 14px", fontSize: 11, color: "#8888a0", outline: "none",
-                fontFamily: "'JetBrains Mono', monospace", width: 180,
-              }}
+              className="search-input"
             />
           </div>
         </div>
       </div>
 
       {/* ── MAIN CONTENT ─────────────────────────────────────────── */}
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "8px 24px 60px" }}>
+      <div className="container main-content">
         {activeSkill === "All" ? (
           phases.map(phase => {
             const phaseProjects = filtered.filter(p => p.phase === phase.id);
