@@ -14,3 +14,10 @@ docker tag devops-roadmap-frontend:latest $REGISTRY/devops-roadmap-frontend:late
 docker push $REGISTRY/devops-roadmap-frontend:latest
 
 echo "✅ Both images pushed to $REGISTRY"
+
+echo "🚀 Deploying..."
+kubectl apply -f k8s-manifests/
+
+echo "🔄 Restarting deployments to pull latest images..."
+kubectl rollout restart deployment/frontend-deployment -n devops-roadmap
+kubectl rollout restart deployment/backend-deployment -n devops-roadmap
