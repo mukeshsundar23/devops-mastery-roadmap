@@ -1,29 +1,31 @@
 # Dependencies
 node_modules/
-.pnp
-.pnp.js
+**/node_modules/
 
 # Testing
 coverage/
+**/coverage/
 
 # Production
 dist/
+**/dist/
 build/
+**/build/
 
 # Environment
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 
 # Docker logs
 *.log
 
 # OS Metadata
 .DS_Store
+**/ .DS_Store
 Thumbs.db
 
 # Misc
 .cache/
 .eslintcache
+.vscode/
