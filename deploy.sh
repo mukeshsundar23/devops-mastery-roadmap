@@ -15,9 +15,11 @@ docker push $REGISTRY/devops-roadmap-frontend:latest
 
 echo "✅ Both images pushed to $REGISTRY"
 
+kubectl="microk8s kubectl"
+
 echo "🚀 Deploying..."
-kubectl apply -f k8s-manifests/
+$kubectl apply -f k8s-manifests/
 
 echo "🔄 Restarting deployments to pull latest images..."
-kubectl rollout restart deployment/frontend-deployment -n devops-roadmap
-kubectl rollout restart deployment/backend-deployment -n devops-roadmap
+$kubectl rollout restart deployment/frontend-deployment -n devops-roadmap
+$kubectl rollout restart deployment/backend-deployment -n devops-roadmap
