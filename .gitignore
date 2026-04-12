@@ -25,7 +25,5 @@ build/
 **/ .DS_Store
 Thumbs.db
 
-# Misc
-.cache/
-.eslintcache
-.vscode/
+# Kubernetes (Local experimentation)
+kubernetes/
