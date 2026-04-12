@@ -2,6 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: devops-roadmap-ingress
+  namespace: devops-roadmap
 spec:
   rules:
   - host: mukeshdev.online
