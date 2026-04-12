@@ -628,19 +628,30 @@ const diffBadge = {
 
 // ─── STORAGE ────────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "devops-roadmap-v2";
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 async function loadProgress() {
   try {
-    const result = await window.storage.get(STORAGE_KEY);
-    return result ? new Set(JSON.parse(result.value)) : new Set();
-  } catch { return new Set(); }
+    const response = await fetch(`${API_URL}/api/progress`);
+    if (!response.ok) throw new Error('Failed to fetch');
+    const data = await response.json();
+    return new Set(data);
+  } catch (err) {
+    console.error("Load failed:", err);
+    return new Set();
+  }
 }
 
-async function saveProgress(completedSet) {
+async function saveProgress(day, completed) {
   try {
-    await window.storage.set(STORAGE_KEY, JSON.stringify([...completedSet]));
-  } catch (e) { console.error("Save failed:", e); }
+    await fetch(`${API_URL}/api/progress/${day}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed })
+    });
+  } catch (e) {
+    console.error("Save failed:", e);
+  }
 }
 
 // ─── COMPONENTS ─────────────────────────────────────────────────────────────
@@ -821,8 +832,9 @@ export default function DevOpsRoadmapV2() {
   const toggle = useCallback((day) => {
     setCompletedDays(prev => {
       const next = new Set(prev);
-      next.has(day) ? next.delete(day) : next.add(day);
-      saveProgress(next);
+      const isCompleted = !next.has(day);
+      isCompleted ? next.add(day) : next.delete(day);
+      saveProgress(day, isCompleted);
       return next;
     });
   }, []);
