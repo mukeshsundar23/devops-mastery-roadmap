@@ -5,7 +5,7 @@ metadata:
   namespace: devops-roadmap
 spec:
   rules:
-  - host: mukeshdev.online
+  - host: devops-roadmap.mukeshdev.online
     http:
       paths:
       - path: /
@@ -15,7 +15,7 @@ spec:
             name: frontend-service
             port:
               number: 80
-  - host: api.mukeshdev.online
+  - host: devops-roadmap.api.mukeshdev.online
     http:
       paths:
       - path: /

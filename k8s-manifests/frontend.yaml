@@ -20,7 +20,7 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - |
-            find /usr/share/nginx/html -type f -name "*.js" -exec sed -i 's|http://localhost:3001|https://api.mukeshdev.online|g' {} +
+            find /usr/share/nginx/html -type f -name "*.js" -exec sed -i 's|http://localhost:3001|https://devops-roadmap.api.mukeshdev.online|g' {} +
             nginx -g 'daemon off;'
         ports:
         - containerPort: 80
