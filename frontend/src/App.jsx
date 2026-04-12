@@ -1,4 +1,4 @@
-import DevOpsRoadmap from './devops-roadmap'
+import DevOpsRoadmap from './devops-mastery-roadmap'
 
 function App() {
     return (
