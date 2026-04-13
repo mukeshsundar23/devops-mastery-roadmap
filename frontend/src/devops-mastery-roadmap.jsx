@@ -687,13 +687,16 @@ const diffBadge = {
 };
 
 // ─── STORAGE ────────────────────────────────────────────────────────────────
-// Runtime config: injected via config.js generated at container startup
-const API_URL = (typeof window !== "undefined" && window.__API_URL__) || 'http://localhost:3001';
+// Read API_URL lazily at call-time so config.js has time to run.
+// Falls back to the production API URL so HTTPS never triggers a mixed-content block.
+function getApiUrl() {
+  return (typeof window !== "undefined" && window.__API_URL__) || 'https://devops-roadmap-api.mukeshdev.online';
+}
 
 async function loadProgress() {
   try {
-    const response = await fetch(`${API_URL}/api/progress`);
-    if (!response.ok) throw new Error('Failed to fetch');
+    const response = await fetch(`${getApiUrl()}/api/progress`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     return new Set(data);
   } catch (err) {
@@ -704,7 +707,7 @@ async function loadProgress() {
 
 async function saveProgress(day, completed) {
   try {
-    await fetch(`${API_URL}/api/progress/${day}`, {
+    await fetch(`${getApiUrl()}/api/progress/${day}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ completed })
