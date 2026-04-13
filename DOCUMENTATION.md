@@ -1,68 +1,108 @@
 # DevOps Mastery Project — Complete Documentation
 
-A step-by-step guide documenting how this full-stack DevOps Roadmap app was built, containerized, orchestrated, and deployed to production with a custom domain and Cloudflare tunnel.
+A step-by-step guide documenting how this full-stack DevOps Roadmap app was built, containerized, orchestrated, and deployed to production with a custom domain and Cloudflare Tunnel.
 
 ---
 
 ## Table of Contents
 
 1. [Project Overview](#1-project-overview)
-2. [Building the Application](#2-building-the-application)
+2. [Application Architecture](#2-application-architecture)
 3. [Dockerizing the App](#3-dockerizing-the-app)
 4. [Docker Compose Orchestration](#4-docker-compose-orchestration)
 5. [Setting Up Ubuntu Server VM in UTM](#5-setting-up-ubuntu-server-vm-in-utm)
 6. [Installing & Configuring MicroK8s](#6-installing--configuring-microk8s)
 7. [Deploying to Kubernetes](#7-deploying-to-kubernetes)
-8. [Domain Purchase & Cloudflare Setup](#8-domain-purchase--cloudflare-setup)
-9. [Cloudflare Tunnel Configuration](#9-cloudflare-tunnel-configuration)
-10. [CI/CD Deployment Script](#10-cicd-deployment-script)
-11. [Accessing the Live Application](#11-accessing-the-live-application)
+8. [Secret Management](#8-secret-management)
+9. [Domain Purchase & Cloudflare Setup](#9-domain-purchase--cloudflare-setup)
+10. [Cloudflare Tunnel Configuration](#10-cloudflare-tunnel-configuration)
+11. [CI/CD Deployment Script](#11-cicd-deployment-script)
+12. [Accessing the Live Application](#12-accessing-the-live-application)
 
 ---
 
 ## 1. Project Overview
 
 ### What This Project Is
-An interactive 20-week DevOps curriculum tracker built as a full-stack web application with:
-- **Frontend**: React (Vite) served via Nginx
-- **Backend**: Node.js/Express REST API
-- **Database**: PostgreSQL 15 for persistent progress tracking
-- **Deployment**: Docker → Docker Compose → MicroK8s → Cloudflare Tunnel
 
-### Architecture Flow
-```
-User → Cloudflare Tunnel → MicroK8s Ingress → Frontend/Backend Services → PostgreSQL
-```
+An interactive 20-week DevOps curriculum tracker with user authentication and per-user progress persistence, built as a full-stack web application.
+
+### Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Frontend** | React 18 + Vite + Nginx | SPA served as static files via Nginx |
+| **Backend** | Python 3.12 + FastAPI | REST API with JWT authentication |
+| **ORM** | SQLAlchemy 2.0 | Database models and queries |
+| **Database** | PostgreSQL 15 | Persistent storage for users and progress |
+| **Auth** | JWT (python-jose) + bcrypt | Stateless authentication |
+| **Local Dev** | Docker Compose | Orchestrates all three services |
+| **Production** | MicroK8s | Kubernetes distribution on Ubuntu VM |
+| **Tunnel** | Cloudflare Tunnel | Exposes VM to the internet without open ports |
 
 ---
 
-## 2. Building the Application
+## 2. Application Architecture
 
-### 2.1 Frontend (React + Vite)
-- Built with Vite for fast development and optimized builds
-- Uses React for UI components with progress tracking features
-- Styled with modern CSS, responsive design
-- Features: phase-based roadmap view, skill filtering, search, resume bullets
+### Request Flow
 
-**Key files:**
-- `frontend/index.html` — Entry point
-- `frontend/nginx.conf` — Nginx configuration for SPA routing
-- `frontend/Dockerfile` — Multi-stage Docker build
+```
+Browser (https://devops-roadmap.mukeshdev.online)
+  ↓
+Cloudflare Edge (SSL termination + DDoS protection)
+  ↓
+Cloudflare Tunnel (cloudflared daemon on VM)
+  ↓
+MicroK8s Nginx Ingress (port 80)
+  ↓
+frontend-service → Nginx pod (port 80)
+  ├── GET /* → serves React static files
+  └── /api/* → proxy_pass to backend-service:8000
+                  ↓
+              FastAPI (Python)
+                  ↓
+              PostgreSQL 15
+```
 
-### 2.2 Backend (Node.js + Express)
-- Express.js REST API handling CRUD operations for progress tracking
-- Connects to PostgreSQL for data persistence
-- Lightweight, single-file architecture (`index.js`, `db.js`)
+### Key Design Decision: Nginx Proxy
 
-**Key files:**
-- `backend/index.js` — Express server and API routes
-- `backend/db.js` — PostgreSQL connection and queries
-- `backend/package.json` — Dependencies
+The frontend Nginx container proxies all `/api/*` requests to the Python backend internally. This means:
 
-### 2.3 Database (PostgreSQL)
-- PostgreSQL 15 Alpine image
-- Stores user progress, project completions, and phase data
-- Uses persistent volumes for data durability
+- **React code uses relative URLs** — `fetch('/api/progress')` — never an absolute URL
+- **No CORS** — browser sees all requests going to the same origin
+- **No mixed content** — no `http://` vs `https://` issues
+- **No environment variables in JavaScript** — the backend URL is only in Nginx config
+
+### Directory Structure
+
+```
+devops-mastery-roadmap/
+├── frontend/
+│   ├── src/
+│   │   ├── main.jsx                    — React entry point
+│   │   ├── App.jsx                     — Auth gate (Login vs Roadmap)
+│   │   ├── Login.jsx                   — Login/Register UI
+│   │   └── devops-mastery-roadmap.jsx  — Main roadmap component
+│   ├── nginx.conf                      — Nginx with /api/ proxy_pass
+│   ├── Dockerfile                      — Multi-stage build + envsubst
+│   └── index.html
+├── backend/
+│   ├── main.py       — FastAPI routes
+│   ├── models.py     — SQLAlchemy models (User, Progress)
+│   ├── database.py   — DB engine and session
+│   ├── auth.py       — JWT + bcrypt helpers
+│   ├── requirements.txt
+│   └── Dockerfile
+├── k8s-manifests/
+│   ├── namespace.yaml
+│   ├── db.yaml       — PostgreSQL + PVC
+│   ├── backend.yaml  — FastAPI deployment + service
+│   ├── frontend.yaml — Nginx deployment + service
+│   └── ingress.yaml  — Single-host ingress
+├── docker-compose.yml
+├── deploy.sh
+└── .env              — Local dev secrets (gitignored)
+```
 
 ---
 
@@ -72,106 +112,161 @@ User → Cloudflare Tunnel → MicroK8s Ingress → Frontend/Backend Services �
 
 **File:** [`backend/Dockerfile`](backend/Dockerfile)
 
-**How it works:**
-1. Uses `node:20-alpine` as base (lightweight Linux + Node.js 20)
-2. Sets working directory to `/app`
-3. Copies `package.json` first (Docker layer caching optimization)
-4. Installs only production dependencies
-5. Copies application code
-6. Exposes port 3001
-7. Runs the server with `node index.js`
-
-**Build command:**
-```bash
-docker build -t devops-roadmap-backend:latest ./backend
+```dockerfile
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
+
+**How it works:**
+1. Uses `python:3.12-slim` — minimal Debian + Python 3.12
+2. Installs Python dependencies from `requirements.txt` (layer-cached)
+3. Copies application code
+4. Runs FastAPI via Uvicorn on port 8000
+
+**Key dependencies:**
+- `fastapi` — async web framework
+- `uvicorn[standard]` — ASGI server with uvloop
+- `sqlalchemy` — ORM for PostgreSQL
+- `psycopg2-binary` — PostgreSQL driver
+- `python-jose[cryptography]` — JWT encoding/decoding
+- `bcrypt` — password hashing (replaces unmaintained `passlib`)
 
 ### 3.2 Frontend Dockerfile
 
 **File:** [`frontend/Dockerfile`](frontend/Dockerfile)
 
-**How it works:**
-1. **Multi-stage build** — Stage 1 builds the React app, Stage 2 serves it with Nginx
-2. Build stage installs all dependencies and runs `npm run build` to produce optimized static files in `/app/dist`
-3. Production stage copies built files to Nginx's HTML directory
-4. Custom [`nginx.conf`](frontend/nginx.conf) handles SPA routing (redirects all routes to `index.html`)
-5. Entry point script generates runtime config for API URL from environment variable
-6. This allows changing the API URL without rebuilding the image
+```dockerfile
+# Stage 1: Build React app
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
-**Build command:**
-```bash
-docker build -t devops-roadmap-frontend:latest ./frontend
+# Stage 2: Serve with Nginx + proxy config
+FROM nginx:stable-alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+ENV BACKEND_URL=http://backend:8000
+EXPOSE 80
+CMD ["/bin/sh", "-c", \
+  "envsubst '${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
 ```
 
-### 3.3 Dockerignore Files
+**How it works:**
+1. **Build stage** — installs all npm deps and runs `npm run build`, producing optimized static files in `/app/dist`
+2. **Production stage** — copies static files to Nginx, the config template is stored with `${BACKEND_URL}` placeholder
+3. At **container startup**, `envsubst` replaces `${BACKEND_URL}` in the Nginx template with the actual backend URL (e.g., `http://backend:8000` for Docker Compose, `http://backend-service:8000` for K8s) and writes the final config
+4. Nginx starts and serves the app
 
-Both `backend/.dockerignore` and `frontend/.dockerignore` exclude:
-- `node_modules/` (dependencies installed during build)
-- `.git/`
-- `*.md`
-- Environment files
+### 3.3 Nginx Config
+
+**File:** [`frontend/nginx.conf`](frontend/nginx.conf)
+
+```nginx
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+
+    # Proxy API calls to FastAPI backend
+    location /api/ {
+        proxy_pass ${BACKEND_URL};  # replaced at container startup
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # HTML — never cached (ensure fresh deploys)
+    location ~* \.(html|svg|ico)$ {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        try_files $uri $uri/ /index.html;
+    }
+
+    # JS/CSS — cached with immutable (content-hashed filenames)
+    location ~* \.(js|css|woff2?)$ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    # SPA fallback — all routes serve index.html
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
 
 ---
 
 ## 4. Docker Compose Orchestration
 
-### 4.1 Configuration
-
 **File:** [`docker-compose.yml`](docker-compose.yml)
 
-### 4.2 How It Works
+### Services
 
-| Service | Purpose | Key Configuration |
-|---------|---------|-------------------|
-| **db** | PostgreSQL database | Named volume for persistence, health check for readiness |
-| **backend** | Node.js API server | Waits for DB health check, connects via Docker DNS (`db` hostname) |
-| **frontend** | React app via Nginx | Receives API URL as env var, served on port 80 |
+| Service | Image | Port | Purpose |
+|---------|-------|------|---------|
+| `db` | `postgres:15-alpine` | 5432 (internal) | PostgreSQL database |
+| `backend` | built from `./backend` | 8000 (internal) | FastAPI REST API |
+| `frontend` | built from `./frontend` | 80 → host | React + Nginx proxy |
 
-### 4.3 Running Locally
+### Environment Variables
+
+| Variable | Service | Description |
+|----------|---------|-------------|
+| `POSTGRES_PASSWORD` | db, backend | Database password (from `.env`) |
+| `DATABASE_URL` | backend | Full PostgreSQL connection string |
+| `JWT_SECRET` | backend | Secret key for signing JWT tokens |
+| `BACKEND_URL` | frontend | Internal URL for Nginx proxy (e.g., `http://backend:8000`) |
+
+### Starting Locally
 
 ```bash
-# Start all services
+# First time
+cp .env.example .env   # fill in POSTGRES_PASSWORD and JWT_SECRET
 docker compose up --build
 
-# Access the app
-# Frontend: http://localhost
-# Backend API: http://localhost:3001
+# Subsequent runs (no code changes)
+docker compose up
+
+# Stop and remove volumes (full reset)
+docker compose down -v
 ```
 
-**Key concepts demonstrated:**
-- Service dependencies with health checks
-- Docker internal DNS resolution (services reach each other by name)
-- Named volumes for data persistence
-- Environment variable injection
-- Port mapping to host
+Access at [http://localhost](http://localhost). Register an account, then start tracking progress.
 
 ---
 
-## 5. Setting Up Ubuntu Server VM in UTM — Step by Step Flow
+## 5. Setting Up Ubuntu Server VM in UTM
 
 ### 5.1 High-Level Flow
 
 ```
-Create VM → Install Ubuntu → Setup SSH → Install MicroK8s → Enable Addons → Clone Repo → Deploy → Setup Cloudflare Tunnel → Go Live
+Create UTM VM → Install Ubuntu Server → Enable SSH → Install Docker + MicroK8s
+→ Enable addons → Clone repo → Create K8s secrets → Deploy → Cloudflare Tunnel → Live
 ```
 
 ### 5.2 What is UTM?
-UTM is a virtual machine emulator for macOS that allows running different operating systems (like Ubuntu Server) on Apple Silicon (M1/M2/M3) or Intel Macs.
+
+UTM is a virtual machine emulator for macOS (free, open source) supporting QEMU + Apple Hypervisor. It runs Ubuntu Server on Apple Silicon (M1/M2/M3) or Intel Macs.
 
 ### 5.3 Step 1 — Create the VM
 
 1. **Download UTM** from [mac.getutm.app](https://mac.getutm.app)
-2. **Download Ubuntu Server ISO** from [ubuntu.com/download/server](https://ubuntu.com/download/server) (ARM64 for Apple Silicon, AMD64 for Intel)
+2. **Download Ubuntu Server ISO** — ARM64 for Apple Silicon / AMD64 for Intel from [ubuntu.com/download/server](https://ubuntu.com/download/server)
 3. **Create New VM:**
-   - Open UTM → Click `+`
-   - Select **Virtualize** (faster) or **Emulate**
+   - Open UTM → Click `+` → Select **Virtualize**
    - Choose **Linux** → Browse ISO
-   - Allocate: 4–8 GB RAM, 4 CPU cores, 50 GB+ disk
+   - Allocate: **4–8 GB RAM**, **4 CPU cores**, **50 GB+ disk**
 4. **Boot and Install Ubuntu:**
    - Follow wizard → Language, keyboard, network (DHCP)
    - Create user account
-   - **Install OpenSSH server** (critical for remote access)
-   - Reboot
+   - **Install OpenSSH server** ← critical for `ssh` access
+   - Reboot when prompted
 
 ### 5.4 Step 2 — Prepare the VM
 
@@ -186,410 +281,266 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install -y curl wget git
 ```
 
-### 5.5 Step 3 — Install MicroK8s
+### 5.5 Step 3 — Install Docker
 
 ```bash
-# Install
-sudo snap install microk8s --classic
+# Install Docker Engine (not Docker Desktop)
+curl -fsSL https://get.docker.com | bash
+sudo usermod -aG docker $USER
+newgrp docker
 
-# Add user to group
+# Verify
+docker --version
+```
+
+### 5.6 Step 4 — Install MicroK8s
+
+```bash
+sudo snap install microk8s --classic
 sudo usermod -a -G microk8s $USER
 newgrp microk8s
 
-# Enable addons
-microk8s enable dns dashboard ingress storage registry
+# Enable required addons
+microk8s enable dns ingress storage registry
 
 # Verify
-microk8s status
+microk8s status --wait-ready
 ```
 
-### 5.6 Step 4 — Clone & Build the App
+| Addon | Purpose |
+|-------|---------|
+| **dns** | CoreDNS for service-name resolution within the cluster |
+| **ingress** | Nginx Ingress controller for routing by hostname |
+| **storage** | Hostpath provisioner for PersistentVolumeClaims |
+| **registry** | Local Docker registry on port 32000 |
+
+### 5.7 Step 5 — Clone the Repo
 
 ```bash
-# Clone your repo
-git clone <your-repo-url>
+git clone https://github.com/mukeshsundar23/devops-mastery-roadmap.git
 cd devops-mastery-roadmap
-
-# Build Docker images
-docker build -t devops-roadmap-backend:latest ./backend
-docker build -t devops-roadmap-frontend:latest ./frontend
-
-# Tag for local registry
-docker tag devops-roadmap-backend:latest localhost:32000/devops-roadmap-backend:latest
-docker tag devops-roadmap-frontend:latest localhost:32000/devops-roadmap-frontend:latest
-
-# Push to MicroK8s registry
-docker push localhost:32000/devops-roadmap-backend:latest
-docker push localhost:32000/devops-roadmap-frontend:latest
 ```
-
-### 5.7 Step 5 — Deploy to Kubernetes
-
-```bash
-# Apply manifests
-microk8s kubectl apply -f k8s-manifests/
-
-# Restart deployments to pull images
-microk8s kubectl rollout restart deployment/backend-deployment -n devops-roadmap
-microk8s kubectl rollout restart deployment/frontend-deployment -n devops-roadmap
-
-# Verify everything is running
-microk8s kubectl get all -n devops-roadmap
-```
-
-### 5.8 Step 6 — Setup Cloudflare Tunnel
-
-```bash
-# Install cloudflared
-wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
-sudo dpkg -i cloudflared-linux-amd64.deb
-
-# Login & create tunnel
-cloudflared tunnel login
-cloudflared tunnel create devops-roadmap
-
-# Route DNS
-cloudflared tunnel route dns devops-roadmap devops-roadmap.mukeshdev.online
-cloudflared tunnel route dns devops-roadmap devops-roadmap-api.mukeshdev.online
-
-# Configure (~/.cloudflared/config.yml)
-# → See Section 9.5 for config details
-
-# Run as service
-sudo cloudflared service install
-sudo cp ~/.cloudflared/config.yml /etc/cloudflared/
-sudo cp ~/.cloudflared/*.json /etc/cloudflared/
-sudo systemctl enable cloudflared
-sudo systemctl start cloudflared
-```
-
-### 5.9 Step 7 — Verify
-
-```bash
-# Check pods
-microk8s kubectl get pods -n devops-roadmap
-
-# Check tunnel
-sudo systemctl status cloudflared
-
-# Open browser
-# https://devops-roadmap.mukeshdev.online
-```
-
-### 5.10 Quick Redeploy (After Code Changes)
-
-```bash
-# Just run the deploy script
-./deploy.sh
-```
-
----
-
-## 5.11 Post-Installation Setup (Legacy section, steps covered above)
 
 ---
 
 ## 6. Installing & Configuring MicroK8s
 
-### 6.1 What is MicroK8s?
-MicroK8s is a lightweight, production-ready Kubernetes distribution by Canonical. It's a single-package K8s installation perfect for edge, IoT, and local clusters.
-
-### 6.2 Installation on Ubuntu VM
+### 6.1 Configure kubectl Access
 
 ```bash
-# SSH into your UTM VM
-ssh <username>@<vm-ip>
-
-# Install MicroK8s (stable channel)
-sudo snap install microk8s --classic
-
-# Add your user to the microk8s group
-sudo usermod -a -G microk8s $USER
-
-# Refresh groups (or log out and back in)
-newgrp microk8s
-```
-
-### 6.3 Enable Required Addons
-
-```bash
-# Enable DNS, dashboard, ingress, and storage
-microk8s enable dns
-microk8s enable dashboard
-microk8s enable ingress
-microk8s enable storage
-microk8s enable registry
-
-# Check status
-microk8s status
-```
-
-| Addon | Purpose |
-|-------|---------|
-| **dns** | CoreDNS for service discovery within the cluster |
-| **dashboard** | Kubernetes web dashboard for monitoring |
-| **ingress** | Nginx ingress controller for external access via domains |
-| **storage** | Hostpath provisioner for persistent volumes |
-| **registry** | Local Docker registry for pushing images |
-
-### 6.4 Configure kubectl Access
-
-```bash
-# Get kubeconfig
-microk8s config > ~/.kube/config
-
-# Or use microk8s kubectl directly
+# Option A: use the built-in alias
 microk8s kubectl get nodes
+
+# Option B: export kubeconfig for plain kubectl
+microk8s config > ~/.kube/config
+kubectl get nodes
 ```
 
-### 6.5 Access Local Registry
+### 6.2 Access Local Registry
 
-The registry runs on port `32000`. Verify:
+The registry runs on port `32000`:
 
 ```bash
-# Check registry is running
+# Verify registry is running
 microk8s kubectl get svc -n container-registry
 
 # Test connectivity
 curl http://localhost:32000/v2/
 ```
 
-### 6.6 Port Forwarding (Optional — for accessing from Mac)
+### 6.3 Useful alias
+
+Add this to `~/.bashrc` or `~/.zshrc` to avoid typing `microk8s kubectl` every time:
 
 ```bash
-# On VM: find IP
-ip addr show
-
-# On Mac: add port forwarding in UTM settings
-# Network → Port Forwarding:
-# Host Port 8080 → Guest Port 80
-# Host Port 3001 → Guest Port 3001
-# Host Port 32000 → Guest Port 32000
+alias k='microk8s kubectl'
 ```
 
 ---
 
 ## 7. Deploying to Kubernetes
 
-### 7.1 Project Structure
+### 7.1 Kubernetes Manifest Files
 
 ```
 k8s-manifests/
-├── namespace.yaml      # Isolated namespace
-├── db.yaml             # PostgreSQL deployment + PVC
-├── backend.yaml        # Backend deployment + service
-├── frontend.yaml       # Frontend deployment + service
-└── ingress.yaml        # Ingress rules for routing
+├── namespace.yaml   — devops-roadmap namespace
+├── db.yaml          — PostgreSQL PVC + Deployment + Service
+├── backend.yaml     — FastAPI Deployment + Service
+├── frontend.yaml    — Nginx Deployment + Service
+└── ingress.yaml     — Single-host Ingress rule
 ```
 
-### 7.2 Namespace
-
-**File:** [`k8s-manifests/namespace.yaml`](k8s-manifests/namespace.yaml)
-
-Creates an isolated namespace for all project resources.
-
-### 7.3 Database
-
-**File:** [`k8s-manifests/db.yaml`](k8s-manifests/db.yaml)
-
-**Key concepts:**
-- **PersistentVolumeClaim**: Ensures database data survives pod restarts
-- **Deployment**: Manages PostgreSQL pod with environment variables
-- **Service**: Exposes PostgreSQL internally on port 5432
-
-### 7.4 Backend
-
-**File:** [`k8s-manifests/backend.yaml`](k8s-manifests/backend.yaml)
-
-**Key concepts:**
-- **Image from local registry**: `localhost:32000/devops-roadmap-backend:latest`
-- **K8s DNS for database**: `postgres-service.devops-roadmap.svc.cluster.local`
-  - Format: `<service-name>.<namespace>.svc.cluster.local`
-- **Service**: Exposes backend on port 3001 within the cluster
-
-### 7.5 Frontend
-
-**File:** [`k8s-manifests/frontend.yaml`](k8s-manifests/frontend.yaml)
-
-**Key concepts:**
-- **imagePullPolicy: Always**: Ensures latest image is pulled on every deployment
-- **VITE_API_URL**: Points to production API domain (used by Cloudflare tunnel)
-
-### 7.6 Ingress
-
-**File:** [`k8s-manifests/ingress.yaml`](k8s-manifests/ingress.yaml)
-
-**Key concepts:**
-- Routes traffic based on hostname
-- `devops-roadmap.mukeshdev.online` → Frontend service
-- `devops-roadmap-api.mukeshdev.online` → Backend service
-
-### 7.7 Building & Pushing Images to Local Registry
+### 7.2 First-Time Deployment
 
 ```bash
-# From your Mac or VM, build images
-docker build -t devops-roadmap-backend:latest ./backend
-docker build -t devops-roadmap-frontend:latest ./frontend
+# 1. Create namespace
+microk8s kubectl create namespace devops-roadmap
 
-# Tag for local registry
-docker tag devops-roadmap-backend:latest localhost:32000/devops-roadmap-backend:latest
-docker tag devops-roadmap-frontend:latest localhost:32000/devops-roadmap-frontend:latest
+# 2. Create K8s Secret with your actual credentials (see Section 8)
+microk8s kubectl create secret generic backend-secrets \
+  --namespace devops-roadmap \
+  --from-literal=postgres-password='<your-db-password>' \
+  --from-literal=database-url='postgresql://postgres:<your-db-password>@postgres-service:5432/devops_roadmap' \
+  --from-literal=jwt-secret='<your-jwt-secret>'
 
-# Push to MicroK8s registry
-docker push localhost:32000/devops-roadmap-backend:latest
-docker push localhost:32000/devops-roadmap-frontend:latest
+# 3. Build, push, and deploy
+./deploy.sh
 ```
 
-### 7.8 Applying Manifests
+### 7.3 How Services Communicate in K8s
+
+Within the `devops-roadmap` namespace:
+
+| From | To | DNS Name |
+|------|----|---------|
+| frontend Nginx | FastAPI | `backend-service:8000` |
+| FastAPI | PostgreSQL | `postgres-service:5432` |
+
+Kubernetes automatically resolves service names within the same namespace — no hardcoded IPs needed.
+
+### 7.4 Ingress Configuration
+
+The Ingress now routes a **single hostname** to the frontend service. All API traffic is handled internally by Nginx proxying to the backend — no separate API subdomain required:
+
+```yaml
+rules:
+- host: devops-roadmap.mukeshdev.online
+  http:
+    paths:
+    - path: /
+      pathType: Prefix
+      backend:
+        service:
+          name: frontend-service
+          port:
+            number: 80
+```
+
+### 7.5 Useful Commands
 
 ```bash
-# Apply all manifests
-microk8s kubectl apply -f k8s-manifests/
-
-# Check deployments
+# Check all resources
 microk8s kubectl get all -n devops-roadmap
-
-# Check pods are running
-microk8s kubectl get pods -n devops-roadmap
 
 # View logs
 microk8s kubectl logs -f deployment/backend-deployment -n devops-roadmap
 microk8s kubectl logs -f deployment/frontend-deployment -n devops-roadmap
-```
+microk8s kubectl logs -f deployment/postgres-deployment -n devops-roadmap
 
-### 7.9 Rolling Updates
+# Exec into backend pod
+microk8s kubectl exec -it deployment/backend-deployment -n devops-roadmap -- bash
 
-```bash
-# Restart deployment to pull latest images
-microk8s kubectl rollout restart deployment/backend-deployment -n devops-roadmap
-microk8s kubectl rollout restart deployment/frontend-deployment -n devops-roadmap
+# Check persistent volumes
+microk8s kubectl get pvc -n devops-roadmap
 
-# Check rollout status
-microk8s kubectl rollout status deployment/backend-deployment -n devops-roadmap
+# Full wipe and fresh deploy
+microk8s kubectl delete namespace devops-roadmap
+microk8s kubectl create namespace devops-roadmap
+# → re-create secret, then ./deploy.sh
 ```
 
 ---
 
-## 8. Domain Purchase & Cloudflare Setup
+## 8. Secret Management
 
-### 8.1 Buying a Domain
+### 8.1 Why K8s Secrets
 
-1. **Choose a registrar** — I purchased `mukeshdev.online` from any registrar (Namecheap, GoDaddy, Google Domains, etc.)
+Hardcoding passwords in YAML manifests that are committed to Git is a security risk. Instead, secrets are stored in a Kubernetes `Secret` object — applied directly on the server and never in source control.
 
-2. **Search for availability**
-   - Go to your chosen registrar
-   - Search for desired domain name
-   - Complete purchase
+### 8.2 Creating the K8s Secret
 
-3. **Note your domain** — In this case: `mukeshdev.online`
+```bash
+microk8s kubectl create secret generic backend-secrets \
+  --namespace devops-roadmap \
+  --from-literal=postgres-password='<strong-password>' \
+  --from-literal=database-url='postgresql://postgres:<strong-password>@postgres-service:5432/devops_roadmap' \
+  --from-literal=jwt-secret='<long-random-string>' \
+  --save-config --dry-run=client -o yaml | microk8s kubectl apply -f -
+```
 
-### 8.2 Connecting Domain to Cloudflare
+> The `--dry-run=client -o yaml | apply -f -` pattern is idempotent — it creates OR updates the secret safely.
 
-1. **Create Cloudflare Account**
-   - Go to [dash.cloudflare.com](https://dash.cloudflare.com)
-   - Sign up for free account
+### 8.3 How Manifests Reference the Secret
 
-2. **Add Your Site**
-   - Click "Add a Site"
-   - Enter domain: `mukeshdev.online`
-   - Select **Free plan**
+In `backend.yaml` and `db.yaml`, environment variables are pulled from the secret via `secretKeyRef`:
 
-3. **DNS Records Review**
-   - Cloudflare will scan existing records (likely none)
-   - Continue to next step
+```yaml
+env:
+- name: JWT_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: backend-secrets
+      key: jwt-secret
+- name: DATABASE_URL
+  valueFrom:
+    secretKeyRef:
+      name: backend-secrets
+      key: database-url
+```
 
-4. **Update Nameservers at Registrar**
-   - Cloudflare will provide two nameservers:
-     ```
-    .ns1.cloudflare.com
-     .ns2.cloudflare.com
-     ```
-   - Go to your domain registrar's DNS settings
-   - Replace existing nameservers with Cloudflare's nameservers
-   - Save changes
+### 8.4 Local Development
 
-5. **Wait for Propagation**
-   - DNS propagation takes 1–24 hours (usually faster)
-   - Cloudflare will email you when active
-   - Status changes from "Pending" to "Active" in Cloudflare dashboard
+For local Docker Compose, secrets are in `.env` (gitignored):
 
-### 8.3 DNS Records in Cloudflare
-
-Once active, add these records in Cloudflare DNS dashboard:
-
-| Type | Name | Target | Proxy Status |
-|------|------|--------|--------------|
-| CNAME | devops-roadmap | your-cloudflare-tunnel.cfargotunnel.com | Proxied (orange cloud) |
-| CNAME | devops-roadmap-api | your-cloudflare-tunnel.cfargotunnel.com | Proxied (orange cloud) |
-
-**Note:** The actual tunnel hostname will be generated when you set up Cloudflare Tunnel (next section).
+```bash
+POSTGRES_PASSWORD=yourpassword
+JWT_SECRET=your-long-random-secret
+```
 
 ---
 
-## 9. Cloudflare Tunnel Configuration
+## 9. Domain Purchase & Cloudflare Setup
 
-### 9.1 What is Cloudflare Tunnel?
+### 9.1 Buying a Domain
 
-Cloudflare Tunnel (formerly Argo Tunnel) creates a secure, outbound-only connection from your infrastructure to Cloudflare's edge — no open inbound ports, no public IP needed. It's free on the Cloudflare Zero Trust plan.
+1. Purchase `mukeshdev.online` (or your domain) from any registrar (Namecheap, GoDaddy, etc.)
 
-### 9.2 Why Use a Tunnel?
+### 9.2 Connecting Domain to Cloudflare
 
-- **No port forwarding needed** — Your VM is behind NAT; tunnel bypasses this
-- **No public IP needed** — Works with any internet connection
-- **Free SSL/TLS** — Automatic HTTPS certificates
-- **DDoS protection** — Cloudflare absorbs attacks
-- **No firewall rules** — Outbound-only connection is inherently secure
+1. Go to [dash.cloudflare.com](https://dash.cloudflare.com) → Create free account
+2. **Add a Site** → enter your domain → select **Free plan**
+3. **Update nameservers at registrar** — Cloudflare provides two nameservers (e.g., `ada.ns.cloudflare.com`, `bob.ns.cloudflare.com`) — replace your registrar's nameservers with these
+4. Wait 5–60 min for propagation; Cloudflare emails when active
 
-### 9.3 Installing cloudflared
+---
+
+## 10. Cloudflare Tunnel Configuration
+
+### 10.1 What is Cloudflare Tunnel?
+
+Cloudflare Tunnel (`cloudflared`) creates a secure, outbound-only connection from your infrastructure to Cloudflare's edge — **no open inbound ports, no public IP needed**. Free on the Zero Trust plan.
+
+### 10.2 Why Use a Tunnel?
+
+- VM is behind NAT — no port forwarding needed
+- Free TLS/HTTPS certificates automatically
+- DDoS protection included
+- Outbound-only = inherently secure
+
+### 10.3 Installing cloudflared
 
 ```bash
-# SSH into your Ubuntu VM
-ssh <username>@<vm-ip>
-
-# Download and install cloudflared
-wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
-sudo dpkg -i cloudflared-linux-amd64.deb
-
-# Verify installation
+wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64.deb
+sudo dpkg -i cloudflared-linux-arm64.deb  # use amd64 on Intel
 cloudflared --version
 ```
 
-### 9.4 Creating a Tunnel
-
-1. **Login to Cloudflare**
-   ```bash
-   cloudflared tunnel login
-   ```
-   - Opens browser for authentication
-   - Select your domain: `mukeshdev.online`
-   - Authorizes cloudflared to manage your DNS
-
-2. **Create the Tunnel**
-   ```bash
-   cloudflared tunnel create devops-roadmap
-   ```
-   - Creates a tunnel named `devops-roadmap`
-   - Generates a credentials file at `~/.cloudflared/<tunnel-UUID>.json`
-   - Note the tunnel UUID (e.g., `a1b2c3d4-e5f6-7890-abcd-ef1234567890`)
-
-3. **Create DNS Records for Tunnel**
-   ```bash
-   cloudflared tunnel route dns devops-roadmap devops-roadmap.mukeshdev.online
-   cloudflared tunnel route dns devops-roadmap devops-roadmap-api.mukeshdev.online
-   ```
-   - Automatically creates CNAME records in Cloudflare
-   - Points both subdomains to the tunnel
-
-### 9.5 Configuring the Tunnel
-
-Create config file:
+### 10.4 Creating and Configuring the Tunnel
 
 ```bash
-mkdir -p ~/.cloudflared
-nano ~/.cloudflared/config.yml
+# Authenticate
+cloudflared tunnel login
+
+# Create tunnel
+cloudflared tunnel create devops-roadmap
+# → Note the tunnel UUID in the output
+
+# Create DNS record (one subdomain routes all traffic now)
+cloudflared tunnel route dns devops-roadmap devops-roadmap.mukeshdev.online
 ```
 
-Add configuration:
+**Config file** (`~/.cloudflared/config.yml`):
 
 ```yaml
 tunnel: devops-roadmap
@@ -597,161 +548,93 @@ credentials-file: /home/<username>/.cloudflared/<tunnel-UUID>.json
 
 ingress:
   - hostname: devops-roadmap.mukeshdev.online
-    service: http://localhost:80
-  - hostname: devops-roadmap-api.mukeshdev.online
-    service: http://localhost:3001
+    service: http://localhost:80     # MicroK8s Ingress
   - service: http_status:404
 ```
 
-**How it works:**
-- Traffic to `devops-roadmap.mukeshdev.online` → forwarded to `localhost:80` (frontend)
-- Traffic to `devops-roadmap-api.mukeshdev.online` → forwarded to `localhost:3001` (backend)
-- All other traffic → 404 response
+> **Note:** Only one hostname is needed now. The previous `devops-roadmap-api` subdomain is no longer required — `/api/*` is proxied internally by Nginx.
 
-### 9.6 Running the Tunnel
+### 10.5 Running as a System Service
 
-**Test the tunnel:**
 ```bash
-cloudflared tunnel --config ~/.cloudflared/config.yml run
-```
-
-**Run as a systemd service (production):**
-```bash
-# Install as service
 sudo cloudflared service install
-
-# Copy config
-sudo cp ~/.cloudflared/config.yml /etc/cloudflared/config.yml
+sudo cp ~/.cloudflared/config.yml /etc/cloudflared/
 sudo cp ~/.cloudflared/*.json /etc/cloudflared/
-
-# Edit service file if needed
-sudo nano /etc/systemd/system/cloudflared.service
-
-# Enable and start
 sudo systemctl enable cloudflared
 sudo systemctl start cloudflared
 sudo systemctl status cloudflared
 ```
 
-### 9.7 Verifying the Tunnel
-
-```bash
-# Check tunnel status
-sudo systemctl status cloudflared
-
-# Check Cloudflare dashboard
-# Go to Zero Trust → Networks → Tunnels
-# Should show "Healthy" status
-
-# Test from browser
-# https://devops-roadmap.mukeshdev.online
-# https://devops-roadmap-api.mukeshdev.online
-```
-
 ---
 
-## 10. CI/CD Deployment Script
-
-### 10.1 The Script
+## 11. CI/CD Deployment Script
 
 **File:** [`deploy.sh`](deploy.sh)
 
-### 10.2 How It Works
+### What It Does
 
-| Step | Command | Purpose |
-|------|---------|---------|
-| 1 | `docker build` | Build fresh images from Dockerfiles |
-| 2 | `docker tag` | Tag images for local registry |
-| 3 | `docker push` | Push to MicroK8s registry on port 32000 |
-| 4 | `kubectl apply` | Apply all Kubernetes manifests |
-| 5 | `kubectl rollout restart` | Force pods to restart and pull new images |
+```
+1. docker build backend → push to localhost:32000
+2. docker build frontend → push to localhost:32000
+3. microk8s kubectl apply -f k8s-manifests/   (idempotent — safe to re-run)
+4. kubectl rollout restart backend + frontend deployments
+5. kubectl rollout status → waits until pods are healthy
+```
 
-### 10.3 Running the Script
+### Running It
 
 ```bash
-# Make executable
 chmod +x deploy.sh
-
-# Run deployment
 ./deploy.sh
 ```
 
-**What happens:**
-1. Backend image built and pushed
-2. Frontend image built and pushed
-3. Kubernetes manifests applied (creates namespace, deployments, services, ingress)
-4. Deployments restarted to pull latest images
-5. Rolling update ensures zero downtime
+### Typical Workflow After a Code Change
 
-### 10.4 Automating Further (Future Enhancement)
+```bash
+# On Mac — make changes, commit, push
+git add -A && git commit -m "feat: ..." && git push
 
-This script can be integrated into:
-- **GitHub Actions** — Trigger on push to main branch
-- **GitLab CI** — Pipeline with build, test, deploy stages
-- **ArgoCD** — GitOps approach with automatic sync
-- **Webhooks** — Trigger from git hooks
+# On ubuntu-vm — pull changes and redeploy
+git pull && ./deploy.sh
+```
 
 ---
 
-## 11. Accessing the Live Application
+## 12. Accessing the Live Application
 
-### 11.1 Production URLs
+### Production URL
 
-- **Frontend**: https://devops-roadmap.mukeshdev.online
-- **Backend API**: https://devops-roadmap-api.mukeshdev.online
+**https://devops-roadmap.mukeshdev.online**
 
-### 11.2 Traffic Flow
+### Traffic Flow
 
 ```
-Browser
-  ↓ (HTTPS via Cloudflare edge)
-Cloudflare Tunnel (cloudflared on VM)
-  ↓ (localhost forwarding)
-MicroK8s Ingress Controller
-  ↓ (host-based routing)
-Frontend Service (port 80) / Backend Service (port 3001)
-  ↓ (pod selection)
-Frontend/Backend Pods
-  ↓ (for backend)
-PostgreSQL Service → Persistent Volume
+User's Browser
+  ↓ HTTPS (Cloudflare edge — SSL, DDoS protection)
+Cloudflare Tunnel daemon (cloudflared, running on VM as systemd service)
+  ↓ http://localhost:80
+MicroK8s Nginx Ingress (NodePort)
+  ↓ routes devops-roadmap.mukeshdev.online → frontend-service:80
+Frontend Pod (Nginx)
+  ├── /* → React SPA static files (cached)
+  └── /api/* → proxy_pass → backend-service:8000
+                  ↓
+              Backend Pod (FastAPI/Uvicorn)
+                  ↓ SQLAlchemy
+              PostgreSQL Pod → PersistentVolume (1Gi)
 ```
 
-### 11.3 Useful Commands
-
-```bash
-# Check all resources
-microk8s kubectl get all -n devops-roadmap
-
-# Check ingress
-microk8s kubectl get ingress -n devops-roadmap
-
-# View logs
-microk8s kubectl logs -f deployment/frontend-deployment -n devops-roadmap
-microk8s kubectl logs -f deployment/backend-deployment -n devops-roadmap
-microk8s kubectl logs -f deployment/postgres-deployment -n devops-roadmap
-
-# Exec into pod
-microk8s kubectl exec -it deployment/backend-deployment -n devops-roadmap -- sh
-
-# Check persistent volumes
-microk8s kubectl get pvc -n devops-roadmap
-
-# Restart deployment
-microk8s kubectl rollout restart deployment/backend-deployment -n devops-roadmap
-
-# Check tunnel status
-sudo systemctl status cloudflared
-```
-
-### 11.4 Troubleshooting
+### Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| Pods in CrashLoopBackOff | Check logs: `kubectl logs <pod-name> -n devops-roadmap` |
-| ImagePullBackOff | Verify images pushed to registry, check image names |
-| 502 Bad Gateway | Ensure cloudflared service is running, check ports |
-| DNS not resolving | Check Cloudflare DNS records, wait for propagation |
-| SSL errors | Ensure Cloudflare proxy (orange cloud) is enabled |
+| Pod in `CrashLoopBackOff` | `kubectl logs <pod-name> -n devops-roadmap` |
+| `ImagePullBackOff` | Verify images pushed: `curl localhost:32000/v2/_catalog` |
+| 502 Bad Gateway | Check `cloudflared` service: `systemctl status cloudflared` |
+| `/api/` returns 502 | Check backend pod logs; confirm K8s Secret exists |
+| Login fails | Confirm K8s Secret has correct `jwt-secret` |
+| DB errors on startup | Confirm `database-url` in Secret matches `postgres-password` |
+| DNS not resolving | Check Cloudflare DNS, wait for propagation |
 
 ---
 
@@ -759,33 +642,36 @@ sudo systemctl status cloudflared
 
 | Category | Technology |
 |----------|-----------|
-| **Frontend** | React, Vite, Nginx |
-| **Backend** | Node.js, Express |
+| **Frontend** | React 18, Vite, Nginx |
+| **Backend** | Python 3.12, FastAPI, Uvicorn |
+| **ORM** | SQLAlchemy 2.0 |
 | **Database** | PostgreSQL 15 |
+| **Auth** | JWT (python-jose), bcrypt 4.x |
 | **Containerization** | Docker, Multi-stage builds |
 | **Orchestration** | Docker Compose, Kubernetes |
 | **K8s Distribution** | MicroK8s |
+| **Secret Management** | Kubernetes Secrets |
 | **Virtualization** | UTM (Apple Silicon) |
 | **OS** | Ubuntu Server LTS |
 | **Reverse Proxy** | Cloudflare Tunnel (cloudflared) |
-| **DNS** | Cloudflare |
+| **DNS / CDN** | Cloudflare |
 | **Domain** | mukeshdev.online |
-| **Deployment** | Custom bash script |
+| **Deployment** | Custom bash deploy script |
 
 ---
 
 ## Next Steps / Future Enhancements
 
-- [ ] Add GitHub Actions for automated CI/CD
-- [ ] Implement ArgoCD for GitOps workflow
-- [ ] Add Prometheus + Grafana for monitoring
-- [ ] Set up Let's Encrypt certificates with cert-manager
-- [ ] Add Horizontal Pod Autoscaler (HPA)
-- [ ] Implement NetworkPolicies for security
-- [ ] Add Helm charts for easier deployment
-- [ ] Set up ELK stack for log aggregation
-- [ ] Add rate limiting on ingress
-- [ ] Multi-environment deployment (staging, production)
+- [ ] GitHub Actions CI — auto-build and push images on push to `main`
+- [ ] ArgoCD — GitOps sync from repo to cluster
+- [ ] Prometheus + Grafana — metrics and dashboards
+- [ ] cert-manager + Let's Encrypt — TLS on the ingress layer
+- [ ] Horizontal Pod Autoscaler for backend
+- [ ] NetworkPolicies — restrict pod-to-pod traffic
+- [ ] Helm chart — package all K8s manifests
+- [ ] ELK / Loki — centralized log aggregation
+- [ ] Rate limiting on Nginx Ingress
+- [ ] Multi-environment deploy (staging + production namespaces)
 
 ---
 
