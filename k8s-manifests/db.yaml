@@ -31,8 +31,13 @@ spec:
         env:
         - name: POSTGRES_DB
           value: devops_roadmap
+        - name: POSTGRES_USER
+          value: postgres
         - name: POSTGRES_PASSWORD
-          value: password
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: postgres-password
         ports:
         - containerPort: 5432
         volumeMounts:
