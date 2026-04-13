@@ -5,7 +5,8 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-SECRET_KEY = os.getenv("JWT_SECRET", ""w6L2Q$oa(.e!jVn[jPp$shH|;}[6TC$yS=RI<8E7Y$R"")
+SECRET_KEY = os.getenv("JWT_SECRET", "dev-secret-change-in-production")
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
 
