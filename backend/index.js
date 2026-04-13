@@ -8,16 +8,43 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+const { URL } = require('url');
+const { Client } = require('pg');
+
 // Initialize table if it doesn't exist
 const initDb = async () => {
   try {
+    const dbUrlStr = process.env.DATABASE_URL || 'postgresql://postgres:password@db:5432/devops_roadmap';
+    const parsedUrl = new URL(dbUrlStr);
+    const targetDb = parsedUrl.pathname.slice(1);
+    
+    // Connect to default 'postgres' db
+    parsedUrl.pathname = '/postgres';
+    const adminClient = new Client({ connectionString: parsedUrl.toString() });
+    
+    try {
+      await adminClient.connect();
+      const res = await adminClient.query(`SELECT datname FROM pg_catalog.pg_database WHERE datname = $1`, [targetDb]);
+      if (res.rowCount === 0) {
+        console.log(`Database ${targetDb} does not exist, creating...`);
+        // Cannot use parameterized queries for CREATE DATABASE
+        await adminClient.query(`CREATE DATABASE "${targetDb}"`);
+        console.log(`Database ${targetDb} created.`);
+      }
+    } catch (e) {
+      console.warn("Could not check/create database (might exist or insufficient permissions):", e.message);
+    } finally {
+      await adminClient.end();
+    }
+
+    // Now connect to the target database and initialize table
     await db.query(`
       CREATE TABLE IF NOT EXISTS progress (
         day INTEGER PRIMARY KEY,
         completed BOOLEAN DEFAULT TRUE
       )
     `);
-    console.log('Database initialized');
+    console.log('Database tables initialized');
   } catch (err) {
     console.error('Error initializing database', err);
   }
