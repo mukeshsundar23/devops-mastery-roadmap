@@ -1,4 +1,4 @@
-# Build stage
+# ── Build stage ───────────────────────────────────────────────────────────────
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
@@ -6,25 +6,18 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Production stage
+# ── Production stage ──────────────────────────────────────────────────────────
 FROM nginx:stable-alpine
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create runtime config entrypoint script
-RUN cat > /docker-entrypoint.sh << 'EOF'
-#!/bin/sh
-# Generate runtime config.js from environment variable
-cat > /usr/share/nginx/html/config.js << CFGEOF
-window.__API_URL__ = "${VITE_API_URL:-http://localhost:3001}";
-CFGEOF
+# Store as template; BACKEND_URL is substituted at container startup
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
-# Start nginx
-exec nginx -g 'daemon off;'
-EOF
-RUN chmod +x /docker-entrypoint.sh
-
-ENV VITE_API_URL=http://localhost:3001
+# Default for Docker Compose (service name = 'backend')
+ENV BACKEND_URL=http://backend:8000
 
 EXPOSE 80
-ENTRYPOINT ["/docker-entrypoint.sh"]
+
+# envsubst replaces ${BACKEND_URL} in the template, then starts nginx
+CMD ["/bin/sh", "-c", \
+  "envsubst '${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

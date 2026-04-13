@@ -18,8 +18,8 @@ spec:
         image: localhost:32000/devops-roadmap-frontend:latest
         imagePullPolicy: Always
         env:
-        - name: VITE_API_URL
-          value: "https://devops-roadmap-api.mukeshdev.online"
+        - name: BACKEND_URL
+          value: "http://backend-service:8000"
         ports:
         - containerPort: 80
 ---

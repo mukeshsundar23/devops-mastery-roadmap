@@ -1,10 +1,12 @@
 services:
+
   db:
     image: postgres:15-alpine
     restart: always
     environment:
       POSTGRES_DB: devops_roadmap
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -17,10 +19,10 @@ services:
     build: ./backend
     restart: always
     ports:
-      - "3001:3001"
+      - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://postgres:password@db:5432/devops_roadmap
-      PORT: 3001
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-password}@db:5432/devops_roadmap
+      JWT_SECRET: ${JWT_SECRET:-"w6L2Q$oa(.e!jVn[jPp$shH|;}[6TC$yS=RI<8E7Y$R"}
     depends_on:
       db:
         condition: service_healthy
@@ -31,7 +33,7 @@ services:
     ports:
       - "80:80"
     environment:
-      VITE_API_URL: http://localhost:3001
+      BACKEND_URL: http://backend:8000
     depends_on:
       - backend
 

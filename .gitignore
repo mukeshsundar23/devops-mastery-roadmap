@@ -27,3 +27,12 @@ Thumbs.db
 
 # Kubernetes (Local experimentation)
 kubernetes/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.venv/
+*.egg-info/

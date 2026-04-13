@@ -687,15 +687,14 @@ const diffBadge = {
 };
 
 // ─── STORAGE ────────────────────────────────────────────────────────────────
-// Read API_URL lazily at call-time so config.js has time to run.
-// Falls back to the production API URL so HTTPS never triggers a mixed-content block.
-function getApiUrl() {
-  return (typeof window !== "undefined" && window.__API_URL__) || 'https://devops-roadmap-api.mukeshdev.online';
-}
+// Nginx proxies /api/* to the Python backend — no absolute URL needed.
 
-async function loadProgress() {
+async function loadProgress(token) {
   try {
-    const response = await fetch(`${getApiUrl()}/api/progress`);
+    const response = await fetch("/api/progress", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (response.status === 401) return new Set();
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     return new Set(data);
@@ -705,12 +704,15 @@ async function loadProgress() {
   }
 }
 
-async function saveProgress(day, completed) {
+async function saveProgress(day, completed, token) {
   try {
-    await fetch(`${getApiUrl()}/api/progress/${day}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ completed })
+    await fetch(`/api/progress/${day}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ completed }),
     });
   } catch (e) {
     console.error("Save failed:", e);
@@ -878,7 +880,7 @@ function Modal({ project: p, completed, onToggle, onClose }) {
 
 // ─── MAIN ───────────────────────────────────────────────────────────────────
 
-export default function DevOpsRoadmapV2() {
+export default function DevOpsRoadmapV2({ token, onLogout }) {
   const [activeSkill, setActiveSkill] = useState("All");
   const [selected, setSelected] = useState(null);
   const [completedDays, setCompletedDays] = useState(new Set());
@@ -886,18 +888,18 @@ export default function DevOpsRoadmapV2() {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    loadProgress().then(s => { setCompletedDays(s); setLoaded(true); });
-  }, []);
+    loadProgress(token).then(s => { setCompletedDays(s); setLoaded(true); });
+  }, [token]);
 
   const toggle = useCallback((day) => {
     setCompletedDays(prev => {
       const next = new Set(prev);
       const isCompleted = !next.has(day);
       isCompleted ? next.add(day) : next.delete(day);
-      saveProgress(day, isCompleted);
+      saveProgress(day, isCompleted, token);
       return next;
     });
-  }, []);
+  }, [token]);
 
   const filtered = useMemo(() => {
     let list = activeSkill === "All" ? projects : projects.filter(p => p.skill === activeSkill);
@@ -996,6 +998,15 @@ export default function DevOpsRoadmapV2() {
               <div className="progress-bar-container">
                 <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg, #6366f1, #22d3ee)", borderRadius: 3, transition: "width 0.4s ease" }} />
               </div>
+              <button onClick={onLogout} style={{
+                marginTop: 12, background: "transparent", border: "1px solid #1a1a2e",
+                borderRadius: 6, padding: "5px 12px", cursor: "pointer",
+                fontSize: 9, color: "#3d3d5c", fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: "0.1em", fontWeight: 600, transition: "all 0.2s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "#f8717144"; e.currentTarget.style.color = "#f87171"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "#1a1a2e"; e.currentTarget.style.color = "#3d3d5c"; }}
+              >SIGN OUT</button>
             </div>
           </div>
 
