@@ -20,6 +20,10 @@ Requires **Docker Desktop** or **OrbStack**.
 - **Database**: PostgreSQL 15
 - **Orchestration**: Docker Compose
 
+## 📖 Deployment Documentation
+
+For a complete step-by-step guide on how this app was built, dockerized, deployed to MicroK8s on a UTM Ubuntu VM, and exposed via Cloudflare Tunnel — see **[DOCUMENTATION.md](DOCUMENTATION.md)**.
+
 ## Roadmap Structure
 
 The curriculum follows a dependency-driven progression — each phase builds on the last.
